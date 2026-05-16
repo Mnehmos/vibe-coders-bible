@@ -1,0 +1,34 @@
+name: Control gap
+description: Identify a weak "be careful" process that should become a stronger repo control.
+title: "[Control Gap]: "
+labels:
+  - controls
+  - workflow
+body:
+  - type: textarea
+    id: failure_mode
+    attributes:
+      label: Failure mode
+      description: What can go wrong?
+    validations:
+      required: true
+  - type: dropdown
+    id: current_control
+    attributes:
+      label: Current control level
+      options:
+        - Eliminate
+        - Substitute
+        - Engineer
+        - Administer
+        - PPE
+        - Unknown
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_control
+    attributes:
+      label: Proposed stronger control
+      description: What should the repo, tooling, or workflow enforce?
+    validations:
+      required: true

@@ -1,0 +1,45 @@
+name: Case study
+description: Contribute a concrete AI-assisted software failure and the control that would have caught it.
+title: "[Case Study]: "
+labels:
+  - case-study
+  - documentation
+body:
+  - type: textarea
+    id: situation
+    attributes:
+      label: Situation
+      description: What was being changed?
+    validations:
+      required: true
+  - type: textarea
+    id: agent_action
+    attributes:
+      label: Agent action
+      description: What did the agent do?
+    validations:
+      required: true
+  - type: textarea
+    id: human_signal
+    attributes:
+      label: Human signal
+      description: What made the change look acceptable?
+  - type: textarea
+    id: failure
+    attributes:
+      label: Failure
+      description: What was actually wrong?
+    validations:
+      required: true
+  - type: textarea
+    id: better_control
+    attributes:
+      label: Better control
+      description: What would have caught or prevented it?
+    validations:
+      required: true
+  - type: textarea
+    id: artifact
+    attributes:
+      label: Artifact
+      description: Link or describe the test, checklist item, schema, script, or doc now added.
