@@ -29,6 +29,43 @@ The spine:
 - Avoid self-referential process language such as "this revision," "this audit," "we added," or "as discussed above."
 - Avoid generic "AI is transforming everything" filler.
 
+## Admin Work Protocol
+
+Administrative work is part of the safety system. No meaningful AI-assisted work begins without context, and no meaningful work ends without trace.
+
+Before editing, read:
+
+- `README.md`
+- `AGENTS.md`
+- `PROJECT_CONTEXT.md`
+- `CONTRIBUTING.md`
+- The current issue or request.
+- Relevant issue comments.
+- Relevant PR comments.
+- Recent commits touching affected files.
+- Current branch, status, and diff.
+
+After editing, report:
+
+- What changed.
+- Why it changed.
+- Files touched.
+- Checks run and results.
+- Risks remaining.
+- Docs updated.
+- Follow-up issues needed.
+
+For non-trivial work, simulate these roles:
+
+1. Project Historian: reads history, comments, issues, PRs, and prior decisions.
+2. Issue Steward: scopes work and defines acceptance criteria.
+3. QA Gatekeeper: defines and records verification.
+4. Documentation Steward: keeps docs/templates aligned.
+5. Evidence Clerk: checks public claims against repo evidence.
+6. Human Reviewer: final judgment layer.
+
+The human reviewer approves evidence, not confidence.
+
 ## Source layout
 
 - `manuscript/` is the canonical book source.
