@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { parseChapterMeta } from '../lib/chapter';
+import DoctrineCards from '../components/DoctrineCards';
+
+const entries = await getCollection('chapters');
+const chapters = entries
+  .map(e => ({ ...parseChapterMeta(e.id, e.body ?? ''), body: e.body ?? '' }))
+  .filter(c => !c.isStub && c.keyLine)
+  .sort((a, b) => a.num - b.num);
+
+const base = import.meta.env.BASE_URL;
+---
+
+<Base title="Doctrine Cards — The Vibe Coder's Bible">
+  <div class="max-w-5xl mx-auto px-4 py-12">
+    <div class="mb-10">
+      <a href={base} class="text-sm text-[#555] hover:text-[#999] transition-colors">← Home</a>
+      <h1 class="text-3xl font-bold text-white mt-4 mb-2">Doctrine Cards</h1>
+      <p class="text-[#666] text-sm">Key lines and theses from every written chapter. Click any card to copy.</p>
+    </div>
+
+    <DoctrineCards
+      client:load
+      cards={chapters.map(c => ({
+        num: c.num,
+        title: c.title.replace(/^Chapter \d+ - /, ''),
+        keyLine: c.keyLine,
+        thesis: c.thesis,
+        slug: c.slug,
+        part: c.part,
+      }))}
+      base={base}
+    />
+  </div>
+</Base>

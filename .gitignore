@@ -34,3 +34,12 @@ release/
 .env
 .env.local
 *.local
+
+# Site build
+site/.astro/
+site/dist/
+site/node_modules/
+
+# RAG server
+rag/dist/
+rag/node_modules/

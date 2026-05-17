@@ -1,0 +1,67 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { parseChapterMeta, PARTS } from '../../lib/chapter';
+
+const entries = await getCollection('chapters');
+const chapters = entries
+  .map(e => parseChapterMeta(e.id, e.body ?? ''))
+  .sort((a, b) => a.num - b.num);
+
+const written = chapters.filter(c => !c.isStub).length;
+const base = import.meta.env.BASE_URL;
+---
+
+<Base title="Chapters — The Vibe Coder's Bible">
+  <div class="max-w-4xl mx-auto px-4 py-12">
+    <div class="mb-10">
+      <a href={base} class="text-sm text-[#555] hover:text-[#999] transition-colors">← Home</a>
+      <h1 class="text-3xl font-bold text-white mt-4 mb-2">Table of Contents</h1>
+      <p class="text-[#666] text-sm font-mono">{written} of {chapters.length} chapters written</p>
+    </div>
+
+    {Object.entries(PARTS).map(([partNumStr, partName]) => {
+      const partNum = parseInt(partNumStr);
+      const romanNumerals = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+      const partChapters = chapters.filter(c => c.partNum === partNum);
+      if (partChapters.length === 0) return null;
+      return (
+        <section class="mb-12">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="font-mono text-2xl text-amber-500/30 font-bold">{romanNumerals[partNum]}</div>
+            <div>
+              <h2 class="text-lg font-semibold text-white">Part {romanNumerals[partNum]}</h2>
+              <p class="text-sm text-[#666]">{partName}</p>
+            </div>
+          </div>
+          <div class="space-y-1 ml-12">
+            {partChapters.map(ch => (
+              <div class={`flex items-start gap-4 p-3 rounded-lg border transition-all ${
+                ch.isStub
+                  ? 'border-transparent opacity-30'
+                  : 'border-transparent hover:border-[#2a2a2a] hover:bg-[#161616] group cursor-pointer'
+              }`}>
+                <span class="font-mono text-xs text-[#444] w-6 shrink-0 mt-1">{String(ch.num).padStart(2, '0')}</span>
+                <div class="flex-1 min-w-0">
+                  {ch.isStub ? (
+                    <span class="text-sm text-[#444]">{ch.title.replace(/^Chapter \d+ - /, '')}</span>
+                  ) : (
+                    <a href={`${base}/chapters/${ch.slug}`} class="block">
+                      <span class="text-sm text-[#e2e2e2] group-hover:text-white transition-colors">
+                        {ch.title.replace(/^Chapter \d+ - /, '')}
+                      </span>
+                      {ch.keyLine && (
+                        <p class="text-xs text-[#555] mt-0.5">{ch.keyLine}</p>
+                      )}
+                    </a>
+                  )}
+                </div>
+                {ch.isStub && <span class="text-xs text-[#333] font-mono shrink-0">coming</span>}
+              </div>
+            ))}
+          </div>
+        </section>
+      );
+    })}
+  </div>
+</Base>

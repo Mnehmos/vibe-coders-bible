@@ -1,0 +1,10 @@
+{
+  "project_id": "vibe-coders-bible",
+  "name": "vibe-coders-bible",
+  "description": "The Vibe Coder's Bible — RAG search over all 40 chapters and front matter",
+  "stats": {
+    "sources_count": 0,
+    "chunks_count": 0,
+    "vectors_count": 0
+  }
+}

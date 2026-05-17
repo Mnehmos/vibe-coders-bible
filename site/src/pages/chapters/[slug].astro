@@ -1,0 +1,113 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+import { parseChapterMeta } from '../../lib/chapter';
+import Checklist from '../../components/Checklist';
+import Progress from '../../components/Progress';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('chapters');
+  return entries
+    .filter(e => {
+      const body = e.body ?? '';
+      const isStub = body.includes('## Main beats') || body.includes('## Chapter job') || body.includes('## Draft notes');
+      return !isStub;
+    })
+    .map(entry => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const meta = parseChapterMeta(entry.id, entry.body ?? '');
+
+const base = import.meta.env.BASE_URL;
+
+// Prev/next
+const all = await getCollection('chapters');
+const sorted = all
+  .map(e => parseChapterMeta(e.id, e.body ?? ''))
+  .filter(c => !c.isStub)
+  .sort((a, b) => a.num - b.num);
+
+const idx = sorted.findIndex(c => c.id === meta.id);
+const prev = idx > 0 ? sorted[idx - 1] : null;
+const next = idx < sorted.length - 1 ? sorted[idx + 1] : null;
+---
+
+<Base
+  title={`${meta.title} — The Vibe Coder's Bible`}
+  description={meta.thesis}
+>
+  <div class="max-w-7xl mx-auto px-4 py-8 flex gap-8">
+    <!-- Sidebar -->
+    <aside class="hidden lg:block w-56 shrink-0">
+      <div class="sticky top-20">
+        <a href={`${base}/chapters`} class="text-xs text-[#555] hover:text-[#999] transition-colors block mb-4">← All chapters</a>
+        <div class="text-xs text-amber-400/60 font-mono mb-1">{meta.part}</div>
+        <Progress client:load chapterSlug={meta.slug} />
+      </div>
+    </aside>
+
+    <!-- Content -->
+    <article class="flex-1 min-w-0">
+      <!-- Chapter header -->
+      <header class="mb-10">
+        <div class="font-mono text-xs text-[#555] mb-2">
+          Chapter {String(meta.num).padStart(2, '0')}
+        </div>
+        <h1 class="text-3xl font-bold text-white mb-4">
+          {meta.title.replace(/^Chapter \d+ - /, '')}
+        </h1>
+        {meta.keyLine && (
+          <p class="key-line text-base">{meta.keyLine}</p>
+        )}
+      </header>
+
+      <!-- Rendered markdown -->
+      <div class="prose prose-invert max-w-none
+        prose-headings:font-semibold prose-headings:text-white
+        prose-h1:hidden
+        prose-h2:text-xl prose-h2:mt-10 prose-h2:mb-4
+        prose-h3:text-lg prose-h3:mt-8
+        prose-p:text-[#d1d5db] prose-p:leading-relaxed
+        prose-a:text-amber-400 prose-a:no-underline hover:prose-a:underline
+        prose-strong:text-white
+        prose-table:text-sm
+        prose-th:text-[#999] prose-th:font-normal
+        prose-td:text-[#bbb]
+        prose-li:text-[#d1d5db]
+        prose-blockquote:border-amber-500 prose-blockquote:text-[#999]
+        prose-code:text-amber-300 prose-code:bg-[#1a1a2e] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
+      ">
+        <Content />
+      </div>
+
+      <!-- Interactive checklist (extracts from Practical Artifact section) -->
+      {!meta.isStub && (
+        <div class="mt-12 pt-8 border-t border-[#2a2a2a]">
+          <Checklist client:visible chapterSlug={meta.slug} chapterBody={entry.body ?? ''} />
+        </div>
+      )}
+
+      <!-- Prev/Next -->
+      <nav class="mt-12 pt-8 border-t border-[#2a2a2a] flex items-center justify-between gap-4">
+        {prev ? (
+          <a href={`${base}/chapters/${prev.slug}`} class="group flex flex-col max-w-[45%]">
+            <span class="text-xs text-[#555] mb-1">← Previous</span>
+            <span class="text-sm text-[#999] group-hover:text-[#e2e2e2] transition-colors">
+              {prev.title.replace(/^Chapter \d+ - /, '')}
+            </span>
+          </a>
+        ) : <div />}
+        {next ? (
+          <a href={`${base}/chapters/${next.slug}`} class="group flex flex-col items-end max-w-[45%]">
+            <span class="text-xs text-[#555] mb-1">Next →</span>
+            <span class="text-sm text-[#999] group-hover:text-[#e2e2e2] transition-colors text-right">
+              {next.title.replace(/^Chapter \d+ - /, '')}
+            </span>
+          </a>
+        ) : <div />}
+      </nav>
+    </article>
+  </div>
+</Base>

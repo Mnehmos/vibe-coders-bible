@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+const base = import.meta.env.BASE_URL;
+
+const RAG_URL = import.meta.env.RAG_URL ?? '';
+---
+
+<Base title="Ask the Book — The Vibe Coder's Bible">
+  <div class="max-w-3xl mx-auto px-4 py-12">
+    <div class="mb-10">
+      <a href={base} class="text-sm text-[#555] hover:text-[#999] transition-colors">← Home</a>
+      <h1 class="text-3xl font-bold text-white mt-4 mb-2">Ask the Book</h1>
+      <p class="text-[#666] text-sm">
+        Search the manuscript or ask a question. Answers are grounded in the book's content.
+      </p>
+    </div>
+
+    <!-- Search component loads dynamically -->
+    <div id="search-root" data-rag-url={RAG_URL} data-base={base}></div>
+  </div>
+</Base>
+
+<script>
+  import('../components/Search.tsx').then(({ default: Search }) => {
+    const root = document.getElementById('search-root');
+    if (!root) return;
+    const ragUrl = root.dataset.ragUrl ?? '';
+    const base = root.dataset.base ?? '';
+    import('react').then(React => {
+      import('react-dom/client').then(ReactDOM => {
+        ReactDOM.createRoot(root).render(
+          React.createElement(Search, { ragUrl, base })
+        );
+      });
+    });
+  });
+</script>

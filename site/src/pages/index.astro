@@ -1,0 +1,140 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { parseChapterMeta, PARTS } from '../lib/chapter';
+
+const entries = await getCollection('chapters');
+const chapters = entries
+  .map(e => parseChapterMeta(e.id, e.body ?? ''))
+  .sort((a, b) => a.num - b.num);
+
+const writtenCount = chapters.filter(c => !c.isStub).length;
+const base = import.meta.env.BASE_URL;
+
+const doctrine = [
+  'Vibe coding lowers the cost of generation. It does not lower the cost of responsibility.',
+  'AI does not make detail unnecessary. AI makes detail affordable.',
+  'The model can produce. Only a person can decide.',
+  'Trust AI to propose. Verify before commit.',
+  'Mixed output must be routed.',
+  'The repo is the memory.',
+  'Tests are reflexes. Schemas are contracts. Git is the time machine.',
+  'Design systems where hallucination can exist, but cannot silently become truth.',
+];
+---
+
+<Base>
+  <!-- Hero -->
+  <section class="max-w-4xl mx-auto px-4 pt-20 pb-16">
+    <p class="font-mono text-amber-400 text-sm tracking-widest mb-6 uppercase">The Mnemosyne Research Institute</p>
+    <h1 class="text-4xl sm:text-5xl font-bold text-white leading-tight mb-6">
+      The Vibe Coder's Bible
+    </h1>
+    <p class="text-xl text-[#999] leading-relaxed mb-4 max-w-2xl">
+      A trust-but-verify field manual for AI-assisted software development.
+    </p>
+    <p class="text-base text-[#666] leading-relaxed mb-10 max-w-2xl">
+      Vibe coding is real. So is the responsibility that comes with it. This book teaches a practical discipline:
+      let models propose aggressively, then use tests, schemas, sandboxes, permissions, CI, Git, and provenance
+      to decide what becomes real.
+    </p>
+    <div class="flex flex-wrap gap-3">
+      <a href={`${base}/chapters`} class="btn-primary">Read the Book</a>
+      <a href={`${base}/search`} class="btn-ghost">Ask the Book</a>
+    </div>
+  </section>
+
+  <!-- Doctrine -->
+  <section class="border-y border-[#2a2a2a] bg-[#111] py-12">
+    <div class="max-w-4xl mx-auto px-4">
+      <h2 class="font-mono text-xs uppercase tracking-widest text-[#555] mb-6">Core Doctrine</h2>
+      <div class="grid sm:grid-cols-2 gap-3">
+        {doctrine.map(line => (
+          <div class="border-l-2 border-amber-500/40 pl-4 py-1">
+            <p class="text-[#ccc] text-sm leading-relaxed">{line}</p>
+          </div>
+        ))}
+      </div>
+      <p class="mt-6 text-right">
+        <a href={`${base}/doctrine`} class="text-sm text-amber-400 hover:text-amber-300 transition-colors">
+          All doctrine cards →
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Chapters by Part -->
+  <section class="max-w-4xl mx-auto px-4 py-16">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-xl font-semibold text-white">Manuscript</h2>
+      <span class="text-sm text-[#555] font-mono">{writtenCount}/{chapters.length} chapters written</span>
+    </div>
+
+    {Object.entries(PARTS).map(([partNumStr, partName]) => {
+      const partNum = parseInt(partNumStr);
+      const partChapters = chapters.filter(c => c.partNum === partNum);
+      if (partChapters.length === 0) return null;
+      return (
+        <div class="mb-10">
+          <h3 class="font-mono text-xs uppercase tracking-widest text-amber-400/70 mb-3">
+            Part {['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'][partNum]} — {partName}
+          </h3>
+          <div class="space-y-1">
+            {partChapters.map(ch => (
+              <a
+                href={`${base}/chapters/${ch.slug}`}
+                class={`flex items-start gap-4 p-3 rounded-lg border transition-colors group ${
+                  ch.isStub
+                    ? 'border-transparent text-[#444] cursor-default pointer-events-none'
+                    : 'border-transparent hover:border-[#2a2a2a] hover:bg-[#161616]'
+                }`}
+              >
+                <span class="font-mono text-xs text-[#444] w-6 shrink-0 mt-0.5">{String(ch.num).padStart(2, '0')}</span>
+                <div class="min-w-0">
+                  <span class={`text-sm ${ch.isStub ? 'text-[#3a3a3a]' : 'text-[#e2e2e2] group-hover:text-white transition-colors'}`}>
+                    {ch.title.replace(/^Chapter \d+ - /, '')}
+                  </span>
+                  {!ch.isStub && ch.keyLine && (
+                    <p class="text-xs text-[#555] mt-0.5 truncate">{ch.keyLine}</p>
+                  )}
+                </div>
+                {ch.isStub && <span class="ml-auto shrink-0 text-xs text-[#333] font-mono">draft</span>}
+              </a>
+            ))}
+          </div>
+        </div>
+      );
+    })}
+  </section>
+
+  <!-- Hierarchy table -->
+  <section class="border-t border-[#2a2a2a] bg-[#111] py-12">
+    <div class="max-w-4xl mx-auto px-4">
+      <h2 class="font-mono text-xs uppercase tracking-widest text-[#555] mb-6">Hierarchy of AI Controls</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-[#2a2a2a]">
+              <th class="text-left py-2 pr-6 text-[#777] font-normal">Control</th>
+              <th class="text-left py-2 text-[#777] font-normal">AI-Assisted Equivalent</th>
+            </tr>
+          </thead>
+          <tbody class="text-[#bbb]">
+            {[
+              ['Elimination', 'Remove access to secrets, production databases, destructive commands'],
+              ['Substitution', 'Replace raw access with typed tools, task runners, safe APIs'],
+              ['Engineering controls', 'Tests, schemas, type systems, CI, sandboxes, branch protection'],
+              ['Administrative controls', 'PR templates, checklists, review policy, release process'],
+              ['PPE', 'Prompt instructions, manual vigilance, style preferences'],
+            ].map(([control, equiv]) => (
+              <tr class="border-b border-[#1e1e1e]">
+                <td class="py-2.5 pr-6 font-medium text-[#e2e2e2] whitespace-nowrap">{control}</td>
+                <td class="py-2.5 text-[#888]">{equiv}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</Base>
