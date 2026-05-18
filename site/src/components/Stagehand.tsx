@@ -58,7 +58,8 @@ function extractStage(md: string): { plain: string; commands: StageCommand[] } {
     .trim();
 
   const commands: StageCommand[] = [];
-  const cmdRe = /\[stage\.([a-zA-Z]+)([^\]]*)\]/g;
+  // type captures dotted names like "highlight.off", "focus.off"
+  const cmdRe = /\[stage\.([\w.]+)([^\]]*)\]/g;
   let lastIdx = 0, wc = 0, plain = '';
   let m: RegExpExecArray | null;
 
@@ -269,19 +270,20 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
   const executeCommand = useCallback((cmd: StageCommand) => {
     switch (cmd.type) {
       case 'focus': {
-        // [stage.focus para=3] — spotlight paragraph N (1-indexed), override auto-tracking
+        // [stage.focus para=3] — spotlight paragraph N (1-indexed), suppress auto-tracking
         const idx = parseInt(cmd.args.para ?? '1', 10) - 1;
         manualFocusRef.current = true;
         spotlightPara(idx);
         break;
       }
+      case 'focus.off':
       case 'auto': {
-        // [stage.auto] — resume auto-tracking after a manual focus
+        // [stage.focus.off] — return to auto-tracking
         manualFocusRef.current = false;
         break;
       }
       case 'highlight': {
-        // [stage.highlight text="some phrase"] — amber-highlight the paragraph containing this text
+        // [stage.highlight text="some phrase"] — amber-highlight paragraph containing text
         const needle = cmd.args.text ?? '';
         if (!needle) break;
         for (const el of domParasRef.current) {
@@ -293,12 +295,27 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
         }
         break;
       }
-      case 'clear': {
-        // [stage.clear] — remove all manual highlights and resume auto-tracking
-        manualFocusRef.current = false;
-        for (const el of highlightedElsRef.current) {
-          el.classList.remove('sg-highlight');
+      case 'highlight.off': {
+        // [stage.highlight.off text="..."] — remove highlight from specific text, or all if no text
+        const needle = cmd.args.text ?? '';
+        if (needle) {
+          for (const el of highlightedElsRef.current) {
+            if (el.textContent?.includes(needle)) {
+              el.classList.remove('sg-highlight');
+              highlightedElsRef.current.delete(el);
+              break;
+            }
+          }
+        } else {
+          for (const el of highlightedElsRef.current) el.classList.remove('sg-highlight');
+          highlightedElsRef.current.clear();
         }
+        break;
+      }
+      case 'clear': {
+        // [stage.clear] — remove all highlights and resume auto-tracking
+        manualFocusRef.current = false;
+        for (const el of highlightedElsRef.current) el.classList.remove('sg-highlight');
         highlightedElsRef.current.clear();
         break;
       }
@@ -307,7 +324,8 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
         setDiagramSrc(cmd.args.src ?? '');
         break;
       }
-      case 'closediagram': {
+      case 'diagram.off': {
+        // [stage.diagram.off] — dismiss diagram overlay
         setDiagramSrc('');
         break;
       }

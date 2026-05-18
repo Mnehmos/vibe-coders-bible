@@ -13,16 +13,20 @@ Stagehand gives the model a director's baton, not root access.
 ## The Problem With "The Model Gave An Answer"
 
 Every serious AI system eventually discovers the same thing: model output is not one thing.
+[stage.highlight text="model output is not one thing"]
 
 A chess model responding to a position produces a move, a strategic rationale, a broadcast line, a confidence signal, and sometimes an illegal action. These are different objects. Treating them as a single "answer" and routing them all to the same sink produces errors, corruptions, and failures.
 
 The first serious fix for this is output routing — the insight from Chapter 6 that mixed model output must be split into trust lanes before anything is acted on. Code goes through a compiler. Facts go through a citation check. Commands go through a schema validator. Claims go through a review gate.
+[stage.highlight.off text="model output is not one thing"]
 
 Stagehand is what happens when output routing becomes visible, typed, and synchronized with human-perceivable presentation.
+[stage.highlight text="output routing becomes visible, typed, and synchronized"]
 
 ## What Stagehand Is
 
 Stagehand is a typed narration protocol for synchronizing speech, visuals, and validated state.
+[stage.highlight.off text="output routing becomes visible, typed, and synchronized"]
 
 The model writes a narration script. Inside the script, embedded commands direct the renderer:
 
@@ -45,8 +49,11 @@ The renderer parses the stream. It splits each fragment into lanes:
 The spoken sentence goes to text-to-speech. The visual command goes to the renderer. The entity reference is validated against a live registry. The claim, if it makes it past the provenance gate, becomes a public artifact.
 
 The model never writes directly to state. The model narrates state that already exists.
+[stage.highlight text="The model never writes directly to state."]
 
 ## Proof 1 -- LLM-Chess: Routing Makes The Principle Undeniable
+[stage.highlight.off text="The model never writes directly to state."]
+[stage.focus para=14]
 
 Chess is the cleanest teaching demo because it exposes the lie of "the model gave one answer."
 
@@ -66,10 +73,14 @@ Chapter 26 established this directly: the proposed move needs legality checking,
 The key line from LLM-Chess, stated as a Stagehand principle:
 
 > Commentary is content. The board is state.
+[stage.highlight text="Commentary is content. The board is state."]
 
 The model can commentate brilliantly on a position. The chess engine still decides whether the move is legal. Stagehand makes this split explicit in the command stream rather than leaving it to the system to infer.
+[stage.highlight.off text="Commentary is content. The board is state."]
+[stage.focus.off]
 
 ## Proof 2 -- Clio: Civic Intelligence As Rendered State
+[stage.focus para=20]
 
 Clio is the canonical Stagehand system. Chapter 27 established its architecture: a MapLibre globe backed by a SQLite-WASM entity registry, with narration, TTS, and FFmpeg export. The registry is ground truth. The model narrates from what the database says is true.
 
@@ -93,8 +104,12 @@ The route cannot be published without source support. A route that is verified g
 In civic intelligence, this matters beyond correctness. A false map, false border, or false geopolitical claim does not just mislead technically. In Clio's domain, civic claims have consequences. Stagehand's validation gates are not performance. They are the structural guarantee that narration explains civic state rather than creating it.
 
 > Narration explains civic state. It does not create civic state.
+[stage.highlight text="Narration explains civic state. It does not create civic state."]
+[stage.highlight.off text="Narration explains civic state. It does not create civic state."]
+[stage.focus.off]
 
 ## Proof 3 -- Semantic Video Studio: State First, Pixels Second
+[stage.focus para=29]
 
 Semantic Video Studio extends Stagehand from live presentation to generated media.
 
@@ -122,8 +137,10 @@ The narration line describes what the viewer sees. The commands construct the st
 This separation enables reproducibility. Given the same state pack and renderer, the video is identical. Given a different narration over the same state, the video changes -- but the state remains editable, auditable, and independently correct.
 
 > Stagehand is the bridge from narration to editable cinematic state.
+[stage.focus.off]
 
 ## The Command Language
+[stage.highlight text="Commands are"]
 
 Stagehand commands follow a consistent schema:
 
@@ -139,8 +156,10 @@ Commands are:
 - **Auditable**: every command execution is logged with its inputs and output state.
 
 The narration and command streams are separated at parse time. The TTS system receives narration. The renderer receives commands. Neither receives the other.
+[stage.highlight.off text="Commands are"]
 
 ## Public vs. Private Events
+[stage.highlight text="The model produces private events. The validator promotes events to public."]
 
 A Stagehand session has two event logs: private and public.
 
@@ -151,6 +170,7 @@ The public log captures only what has crossed the validation boundary: verified 
 The model produces private events. The validator promotes events to public. The public log is the content that can be shared, published, cited, or exported.
 
 This is the same distinction that appears throughout the book: the proposal is cheap; the commit is the meaningful act. In Stagehand, the private event is the proposal. The public event is the commit.
+[stage.highlight.off text="The model produces private events. The validator promotes events to public."]
 
 ## The AI Factory And Stagehand
 
@@ -169,6 +189,8 @@ A book chapter (like the ones in this volume) passes through the factory and bec
 - A published episode (exportable, shareable, citable)
 
 The session is the forge. The factory is the refinery. Stagehand is the stage. The audience sees only the produced artifact, not the raw generation that created it.
+[stage.highlight text="The session is the forge. The factory is the refinery. Stagehand is the stage."]
+[stage.highlight.off text="The session is the forge. The factory is the refinery. Stagehand is the stage."]
 
 ## The One-Line Definition
 
@@ -181,6 +203,8 @@ Longer:
 The core invariant:
 
 > The model narrates from state. The model does not write to state.
+[stage.highlight text="The model narrates from state. The model does not write to state."]
+[stage.highlight.off text="The model narrates from state. The model does not write to state."]
 
 ## Practical Artifact -- Stagehand Command Reference
 
@@ -191,7 +215,7 @@ The core invariant:
 | `map.*` | Geographic / civic | `[map.highlight entity="strait:hormuz"]` |
 | `chess.*` | Chess board and broadcast | `[chess.move san="Nf3"]` |
 | `svs.*` | Semantic video scene | `[svs.camera target="greenhouse" move="push_in"]` |
-| `stage.*` | Generic presentation | `[stage.show_text "The model speaks."]` |
+| `stage.*` | Generic presentation | `[stage.highlight text="key phrase"]` |
 | `doc.*` | Document / chapter highlight | `[doc.highlight section="The Autonomy Ladder"]` |
 
 ### Validation pipeline for every command
