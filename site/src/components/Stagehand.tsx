@@ -274,7 +274,7 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
         const t = el.currentTime;
         const p = isFinite(el.duration) && el.duration > 0
           ? Math.round((t / el.duration) * 100) : 0;
-        updatePositionRef.current(findAudioWord(words, t + 0.1), p);
+        updatePositionRef.current(findAudioWord(words, t + 0.25), p);
       }
       rafRef.current = requestAnimationFrame(loop);
     };
