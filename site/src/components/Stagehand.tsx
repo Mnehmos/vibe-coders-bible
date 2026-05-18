@@ -172,6 +172,9 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
   const [hasAudio, setHasAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Ref mirror of presentMode — always current inside audio callbacks (avoids stale closures)
+  const presentModeRef = useRef(false);
+
   // Web Speech fallback
   const wsTokensRef = useRef<{ word: string; startChar: number }[]>([]);
   const wsTextRef = useRef('');
@@ -234,7 +237,7 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
   // ── Spotlight management ────────────────────────────────────────────────
 
   const spotlightPara = useCallback((paraIdx: number) => {
-    if (!presentMode) return;
+    if (!presentModeRef.current) return;  // ref is always current, state captured in closure is not
     const prev = prevParaIdxRef.current;
     if (prev === paraIdx) return;
     prevParaIdxRef.current = paraIdx;
@@ -245,7 +248,7 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
       domParas[paraIdx].classList.add('sg-live');
       domParas[paraIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [presentMode]);
+  }, []);  // reads presentModeRef — no dep on presentMode state
 
   useEffect(() => {
     const article = articleRef.current;
@@ -439,6 +442,7 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
     setCurrentParaIdx(-1);
     setProgress(0);
     prevParaIdxRef.current = -1;
+    presentModeRef.current = false;
     setPresentMode(false);
     setDiagramSrc('');
     // Reset command firing state
@@ -493,7 +497,7 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
           </button>
           {hasAudio && (
             <button
-              onClick={() => { setPresentMode(true); play(); }}
+              onClick={() => { presentModeRef.current = true; setPresentMode(true); play(); }}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono
                 bg-amber-400/10 border border-amber-400/30 text-amber-400
                 hover:bg-amber-400/20 transition-colors"
@@ -531,7 +535,7 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
             {/* Present mode toggle */}
             {hasAudio && (
               <button
-                onClick={() => setPresentMode(p => !p)}
+                onClick={() => { presentModeRef.current = !presentModeRef.current; setPresentMode(p => !p); }}
                 className={`text-xs font-mono px-2 py-0.5 rounded border transition-colors shrink-0 ${
                   presentMode
                     ? 'border-amber-400/60 text-amber-400 bg-amber-400/10'
