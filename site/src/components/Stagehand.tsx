@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -131,24 +132,19 @@ function injectCSS() {
   const style = document.createElement('style');
   style.id = CSS_ID;
   style.textContent = `
-    article.sg-on > *:not(.sg-live) {
-      opacity: 0.35;
-      transition: opacity 0.4s ease;
-    }
+    /* Spotlight punches above the portal overlay (z-40) */
     article.sg-on .sg-live {
-      opacity: 1;
-      transition: opacity 0.4s ease, box-shadow 0.4s ease;
-      outline: 2px solid rgba(245,158,11,0.5);
-      outline-offset: 12px;
+      position: relative;
+      z-index: 41;
+      outline: 2px solid rgba(245,158,11,0.55);
+      outline-offset: 14px;
       border-radius: 6px;
-      background: rgba(245,158,11,0.07);
+      background: rgba(245,158,11,0.06);
       box-shadow:
-        0 0 0 12px rgba(245,158,11,0.04),
-        0 0 40px rgba(245,158,11,0.18),
-        0 0 80px rgba(245,158,11,0.08);
-    }
-    article.sg-on {
-      transition: none;
+        0 0 0 16px rgba(245,158,11,0.04),
+        0 0 60px rgba(245,158,11,0.20),
+        0 0 120px rgba(245,158,11,0.10);
+      transition: box-shadow 0.4s ease;
     }
     article .sg-highlight {
       background: rgba(245,158,11,0.18);
@@ -255,10 +251,11 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
   }, []);  // reads presentModeRef — no dep on presentMode state
 
   useEffect(() => {
+    injectCSS();
     const article = articleRef.current;
     if (!article) return;
-    injectCSS();
-    if (presentMode && playState !== 'idle') {
+    const active = presentMode && playState !== 'idle';
+    if (active) {
       article.classList.add('sg-on');
       const domParas = domParasRef.current;
       domParas.forEach(el => el.classList.remove('sg-live'));
@@ -466,8 +463,28 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
     ? wordWindow(displayWords, currentWordIdx)
     : { slice: [], offset: -1 };
 
+  const overlayActive = presentMode && playState !== 'idle';
+
   return (
     <>
+      {/* Dark presenter overlay — rendered as a body portal so it's in the root stacking context.
+          sg-live elements sit at z-41, punching through this z-40 layer. */}
+      {typeof document !== 'undefined' && createPortal(
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(4, 4, 14, 0.84)',
+            zIndex: 40,
+            pointerEvents: 'none',
+            opacity: overlayActive ? 1 : 0,
+            transition: 'opacity 0.5s ease',
+          }}
+        />,
+        document.body
+      )}
+
       {/* Diagram overlay */}
       {diagramSrc && (
         <div
