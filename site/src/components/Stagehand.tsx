@@ -8,15 +8,21 @@ interface AudioWord {
   end: number;
 }
 
+interface Para {
+  text: string;
+  wordStart: number;  // first word index in this paragraph
+  wordEnd: number;    // last word index (exclusive)
+}
+
 interface StagehandProps {
-  body: string;       // raw markdown — used for Web Speech fallback text
-  audioSrc?: string;  // URL to pre-generated .mp3
-  wordsSrc?: string;  // URL to pre-generated .words.json (Whisper timestamps)
+  body: string;
+  audioSrc?: string;
+  wordsSrc?: string;
 }
 
 type PlayState = 'idle' | 'playing' | 'paused';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Markdown stripping ──────────────────────────────────────────────────────
 
 function stripMarkdown(md: string): string {
   return md
@@ -26,6 +32,7 @@ function stripMarkdown(md: string): string {
     .replace(/`{3}[\s\S]*?`{3}/gm, '')
     .replace(/`([^`]+)`/g, '$1')
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/^\[stage\.[^\]]+\]/gm, '')   // strip Stagehand commands
     .replace(/^[-*+]\s+/gm, '')
     .replace(/^\|.+/gm, '')
     .replace(/^---+$/gm, '')
@@ -35,7 +42,29 @@ function stripMarkdown(md: string): string {
     .trim();
 }
 
-function binarySearchWord(words: AudioWord[], time: number): number {
+// Build paragraph list with word index ranges
+function buildParas(plain: string): Para[] {
+  const blocks = plain.split(/\n\n+/).map(b => b.replace(/\n/g, ' ').trim()).filter(Boolean);
+  const paras: Para[] = [];
+  let wordCursor = 0;
+  for (const text of blocks) {
+    const count = text.split(/\s+/).filter(Boolean).length;
+    paras.push({ text, wordStart: wordCursor, wordEnd: wordCursor + count });
+    wordCursor += count;
+  }
+  return paras;
+}
+
+// Find which paragraph contains a word index
+function findPara(paras: Para[], wordIdx: number): number {
+  for (let i = paras.length - 1; i >= 0; i--) {
+    if (wordIdx >= paras[i].wordStart) return i;
+  }
+  return 0;
+}
+
+// Binary search on Whisper timestamps
+function findAudioWord(words: AudioWord[], time: number): number {
   let lo = 0, hi = words.length - 1, found = 0;
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
@@ -45,53 +74,84 @@ function binarySearchWord(words: AudioWord[], time: number): number {
   return found;
 }
 
-function binarySearchChar(
-  tokens: { word: string; startChar: number }[],
-  charIndex: number
-): number {
+// Binary search on char index (Web Speech fallback)
+function findCharWord(tokens: { startChar: number }[], ci: number): number {
   let lo = 0, hi = tokens.length - 1, found = 0;
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
-    if (tokens[mid].startChar <= charIndex) { found = mid; lo = mid + 1; }
+    if (tokens[mid].startChar <= ci) { found = mid; lo = mid + 1; }
     else hi = mid - 1;
   }
   return found;
 }
 
-function wordWindow(
-  words: string[],
-  current: number,
-  size = 14
-): { slice: string[]; offset: number } {
+// Word window for footer display
+function wordWindow(words: string[], current: number, size = 16) {
   const half = Math.floor(size / 2);
   const start = Math.max(0, current - half);
   const end = Math.min(words.length, start + size);
   return { slice: words.slice(start, end), offset: current - start };
 }
 
+// Inject presenter CSS once
+const CSS_ID = 'sg-presenter-styles';
+function injectCSS() {
+  if (document.getElementById(CSS_ID)) return;
+  const style = document.createElement('style');
+  style.id = CSS_ID;
+  style.textContent = `
+    article.sg-on > *:not(.sg-live) {
+      opacity: 0.18;
+      transition: opacity 0.35s ease;
+    }
+    article.sg-on .sg-live {
+      opacity: 1;
+      transition: opacity 0.35s ease;
+      outline: 2px solid rgba(245,158,11,0.25);
+      outline-offset: 8px;
+      border-radius: 4px;
+      background: rgba(245,158,11,0.04);
+    }
+    article.sg-on {
+      transition: none;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) {
   const [playState, setPlayState] = useState<PlayState>('idle');
+  const [presentMode, setPresentMode] = useState(false);
   const [currentWordIdx, setCurrentWordIdx] = useState(-1);
+  const [currentParaIdx, setCurrentParaIdx] = useState(-1);
   const [progress, setProgress] = useState(0);
 
-  // Audio-file mode
+  // Audio file mode
   const [audioWords, setAudioWords] = useState<AudioWord[]>([]);
   const [hasAudio, setHasAudio] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Web Speech fallback mode
+  // Web Speech fallback
   const wsTokensRef = useRef<{ word: string; startChar: number }[]>([]);
   const wsTextRef = useRef('');
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // ── Initialisation ──────────────────────────────────────────────────────
+  // Paragraph map
+  const parasRef = useRef<Para[]>([]);
+  // DOM elements corresponding to paragraphs (positional match)
+  const domParasRef = useRef<Element[]>([]);
+  const articleRef = useRef<Element | null>(null);
+  const prevParaIdxRef = useRef(-1);
+
+  // ── Init ────────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    // Prepare fallback text regardless
     const plain = stripMarkdown(body);
     wsTextRef.current = plain;
+
+    // Build WS tokens
     const tokens: { word: string; startChar: number }[] = [];
     const re = /\S+/g;
     let m: RegExpExecArray | null;
@@ -100,40 +160,92 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
     }
     wsTokensRef.current = tokens;
 
-    // Try to load pre-generated audio timestamps
+    // Build paragraph map
+    parasRef.current = buildParas(plain);
+
+    // Load audio timestamps
     if (wordsSrc) {
       fetch(wordsSrc)
         .then(r => (r.ok ? r.json() : null))
         .then((words: AudioWord[] | null) => {
-          if (words && words.length > 0) {
-            setAudioWords(words);
-            setHasAudio(true);
-          }
+          if (words?.length) { setAudioWords(words); setHasAudio(true); }
         })
         .catch(() => {});
     }
 
+    // Grab article DOM element and its prose children
+    const article = document.querySelector('article');
+    if (article) {
+      articleRef.current = article;
+      domParasRef.current = Array.from(
+        article.querySelectorAll('p, li, blockquote, h2, h3')
+      );
+    }
+
     return () => {
       window.speechSynthesis?.cancel();
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-      }
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; }
+      // Clean up presenter CSS classes
+      if (article) article.classList.remove('sg-on');
     };
   }, [body, wordsSrc]);
 
-  // ── Audio-file playback ─────────────────────────────────────────────────
+  // ── Spotlight management ────────────────────────────────────────────────
+
+  const spotlightPara = useCallback((paraIdx: number) => {
+    if (!presentMode) return;
+    const prev = prevParaIdxRef.current;
+    if (prev === paraIdx) return;
+    prevParaIdxRef.current = paraIdx;
+
+    const domParas = domParasRef.current;
+    if (prev >= 0 && domParas[prev]) domParas[prev].classList.remove('sg-live');
+    if (paraIdx >= 0 && domParas[paraIdx]) {
+      domParas[paraIdx].classList.add('sg-live');
+      domParas[paraIdx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [presentMode]);
+
+  // Toggle present mode on/off during playback
+  useEffect(() => {
+    const article = articleRef.current;
+    if (!article) return;
+    injectCSS();
+    if (presentMode && playState !== 'idle') {
+      article.classList.add('sg-on');
+      // Re-apply spotlight to current para
+      const domParas = domParasRef.current;
+      domParas.forEach(el => el.classList.remove('sg-live'));
+      if (currentParaIdx >= 0 && domParas[currentParaIdx]) {
+        domParas[currentParaIdx].classList.add('sg-live');
+      }
+    } else {
+      article.classList.remove('sg-on');
+      domParasRef.current.forEach(el => el.classList.remove('sg-live'));
+      prevParaIdxRef.current = -1;
+    }
+  }, [presentMode, playState, currentParaIdx]);
+
+  // ── Word / para tracking ────────────────────────────────────────────────
+
+  const updatePosition = useCallback((wordIdx: number, prog: number) => {
+    setCurrentWordIdx(wordIdx);
+    setProgress(prog);
+    const paraIdx = findPara(parasRef.current, wordIdx);
+    setCurrentParaIdx(paraIdx);
+    spotlightPara(paraIdx);
+  }, [spotlightPara]);
+
+  // ── Audio element ───────────────────────────────────────────────────────
 
   const onTimeUpdate = useCallback(() => {
     const el = audioRef.current;
-    if (!el || audioWords.length === 0) return;
+    if (!el || !audioWords.length) return;
     const t = el.currentTime;
     const p = isFinite(el.duration) && el.duration > 0
-      ? Math.round((t / el.duration) * 100)
-      : 0;
-    setProgress(p);
-    setCurrentWordIdx(binarySearchWord(audioWords, t));
-  }, [audioWords]);
+      ? Math.round((t / el.duration) * 100) : 0;
+    updatePosition(findAudioWord(audioWords, t), p);
+  }, [audioWords, updatePosition]);
 
   const playAudio = useCallback(async () => {
     if (!audioSrc) return;
@@ -143,7 +255,14 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
       el.onended = () => {
         setPlayState('idle');
         setCurrentWordIdx(-1);
+        setCurrentParaIdx(-1);
         setProgress(0);
+        const article = articleRef.current;
+        if (article) {
+          article.classList.remove('sg-on');
+          domParasRef.current.forEach(el => el.classList.remove('sg-live'));
+        }
+        prevParaIdxRef.current = -1;
       };
       audioRef.current = el;
     }
@@ -156,34 +275,31 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
   const startWebSpeech = useCallback(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-
     const text = wsTextRef.current;
     const tokens = wsTokensRef.current;
     const utt = new SpeechSynthesisUtterance(text);
     utt.rate = 0.92;
-
     utt.onboundary = (ev) => {
       if (ev.name !== 'word') return;
-      const idx = binarySearchChar(tokens, ev.charIndex);
-      setCurrentWordIdx(idx);
-      setProgress(Math.round((ev.charIndex / text.length) * 100));
+      const wi = findCharWord(tokens, ev.charIndex);
+      updatePosition(wi, Math.round((ev.charIndex / text.length) * 100));
     };
     utt.onend = () => {
       setPlayState('idle');
       setCurrentWordIdx(-1);
+      setCurrentParaIdx(-1);
       setProgress(0);
+      prevParaIdxRef.current = -1;
     };
-
     utteranceRef.current = utt;
     window.speechSynthesis.speak(utt);
     setPlayState('playing');
-  }, []);
+  }, [updatePosition]);
 
   // ── Controls ────────────────────────────────────────────────────────────
 
   const play = useCallback(() => {
-    if (hasAudio) playAudio();
-    else startWebSpeech();
+    if (hasAudio) playAudio(); else startWebSpeech();
   }, [hasAudio, playAudio, startWebSpeech]);
 
   const pause = () => {
@@ -199,14 +315,14 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
   };
 
   const stop = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; }
     window.speechSynthesis?.cancel();
     setPlayState('idle');
     setCurrentWordIdx(-1);
+    setCurrentParaIdx(-1);
     setProgress(0);
+    prevParaIdxRef.current = -1;
+    setPresentMode(false);
   };
 
   // ── Render ──────────────────────────────────────────────────────────────
@@ -215,79 +331,114 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
     ? audioWords.map(w => w.word)
     : wsTokensRef.current.map(t => t.word);
 
-  const { slice: windowWords, offset: highlightOffset } =
-    currentWordIdx >= 0
-      ? wordWindow(displayWords, currentWordIdx)
-      : { slice: [], offset: -1 };
-
-  const label = hasAudio ? '▶ Play narration' : '▶ Read aloud';
+  const { slice: windowWords, offset: hi } = currentWordIdx >= 0
+    ? wordWindow(displayWords, currentWordIdx)
+    : { slice: [], offset: -1 };
 
   return (
     <>
+      {/* Idle controls */}
       {playState === 'idle' && (
-        <button
-          onClick={play}
-          aria-label={hasAudio ? 'Play narration' : 'Read this chapter aloud'}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded text-xs font-mono
-            bg-[#1a1a2e] border border-[#2a2a3a] text-amber-400/70
-            hover:border-amber-400/40 hover:text-amber-400 transition-colors"
-        >
-          {label}
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={play}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono
+              bg-[#1a1a2e] border border-[#2a2a3a] text-amber-400/70
+              hover:border-amber-400/40 hover:text-amber-400 transition-colors"
+          >
+            ▶ {hasAudio ? 'Play narration' : 'Read aloud'}
+          </button>
+          {hasAudio && (
+            <button
+              onClick={() => { setPresentMode(true); play(); }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono
+                bg-amber-400/10 border border-amber-400/30 text-amber-400
+                hover:bg-amber-400/20 transition-colors"
+            >
+              ◈ Present
+            </button>
+          )}
+        </div>
       )}
 
+      {/* Active controls bar */}
       {playState !== 'idle' && (
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-0 left-0 right-0 z-50 bg-[#0d0d1a]/95 backdrop-blur-sm
-            border-t border-[#2a2a3a] px-4 py-3 shadow-2xl"
+          className="fixed bottom-0 left-0 right-0 z-50 bg-[#080810]/97 backdrop-blur-md
+            border-t border-[#2a2a3a] shadow-2xl"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
-          <div className="max-w-3xl mx-auto flex items-center gap-3 mb-2">
+          {/* Top controls row */}
+          <div className="max-w-4xl mx-auto flex items-center gap-3 px-4 pt-3 pb-2">
             <button
               onClick={playState === 'playing' ? pause : resume}
-              className="text-amber-400 text-sm font-mono hover:text-amber-300 transition-colors w-20"
+              className="text-amber-400 text-sm font-mono hover:text-amber-300 transition-colors w-20 shrink-0"
             >
               {playState === 'playing' ? '⏸ Pause' : '▶ Resume'}
             </button>
             <button
               onClick={stop}
-              className="text-[#555] text-sm font-mono hover:text-[#999] transition-colors"
+              className="text-[#555] text-sm font-mono hover:text-[#999] transition-colors shrink-0"
             >
               ■ Stop
             </button>
-            <div className="flex-1 h-0.5 bg-[#2a2a2a] rounded overflow-hidden">
+
+            {/* Present mode toggle */}
+            {hasAudio && (
+              <button
+                onClick={() => setPresentMode(p => !p)}
+                className={`text-xs font-mono px-2 py-0.5 rounded border transition-colors shrink-0 ${
+                  presentMode
+                    ? 'border-amber-400/60 text-amber-400 bg-amber-400/10'
+                    : 'border-[#333] text-[#555] hover:text-[#999]'
+                }`}
+              >
+                {presentMode ? '◈ Stage ON' : '◈ Stage'}
+              </button>
+            )}
+
+            {/* Progress bar */}
+            <div className="flex-1 h-0.5 bg-[#1e1e2e] rounded overflow-hidden mx-1">
               <div
-                className="h-full bg-amber-400/70 transition-all duration-100"
+                className="h-full bg-amber-400/60 transition-all duration-150"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <span className="text-xs text-[#555] font-mono tabular-nums w-8 text-right">
+            <span className="text-xs text-[#444] font-mono tabular-nums w-8 text-right shrink-0">
               {progress}%
             </span>
           </div>
 
+          {/* Word teleprompter */}
           <div
-            className="max-w-3xl mx-auto text-sm leading-relaxed text-[#888] font-mono select-none"
+            className="max-w-4xl mx-auto px-4 pb-3 text-sm leading-relaxed text-[#666]
+              font-mono select-none tracking-wide"
             aria-hidden="true"
           >
             {windowWords.map((w, i) => (
               <span
                 key={i}
                 className={
-                  i === highlightOffset
-                    ? 'text-amber-300 bg-amber-400/20 rounded px-0.5 mx-0.5'
-                    : 'mx-0.5'
+                  i === hi
+                    ? 'text-amber-300 bg-amber-400/20 rounded px-0.5 mx-[2px] font-semibold'
+                    : 'mx-[2px]'
                 }
               >
                 {w}
               </span>
             ))}
+            {presentMode && currentParaIdx >= 0 && (
+              <span className="ml-3 text-[#333] text-xs">
+                § {currentParaIdx + 1}
+              </span>
+            )}
           </div>
         </div>
       )}
 
-      {playState !== 'idle' && <div className="h-24" aria-hidden />}
+      {playState !== 'idle' && <div className="h-20" aria-hidden />}
     </>
   );
 }
