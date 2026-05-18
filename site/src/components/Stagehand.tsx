@@ -42,7 +42,7 @@ function extractStage(md: string): { plain: string; commands: StageCommand[] } {
   while ((m = cmdRe.exec(text)) !== null) {
     const seg = text.slice(lastIdx, m.index);
     plain += seg;
-    wc += seg.split(/\s+/).filter(Boolean).length;
+    wc += (seg.match(/\w+/g) ?? []).length;
     commands.push({ wordIdx: wc, type: m[1], args: parseCommandArgs(m[2]) });
     lastIdx = m.index + m[0].length;
   }
@@ -55,7 +55,8 @@ function buildParas(plain: string): Para[] {
   const paras: Para[] = [];
   let wc = 0;
   for (const text of blocks) {
-    const count = text.split(/\s+/).filter(Boolean).length;
+    // Count only real word tokens — matches how Whisper counts (strips standalone punctuation like -, --, :)
+    const count = (text.match(/\w+/g) ?? []).length;
     paras.push({ text, wordStart: wc, wordEnd: wc + count });
     wc += count;
   }
@@ -131,11 +132,16 @@ function wrapParaWords(el: Element): HTMLElement[] {
     const frag = document.createDocumentFragment();
     for (const part of parts) {
       if (/^\s*$/.test(part)) { frag.appendChild(document.createTextNode(part)); continue; }
-      const span = document.createElement('span');
-      span.className = 'sg-word';
-      span.textContent = part;
-      frag.appendChild(span);
-      spans.push(span);
+      if (/\w/.test(part)) {
+        const span = document.createElement('span');
+        span.className = 'sg-word';
+        span.textContent = part;
+        frag.appendChild(span);
+        spans.push(span);
+      } else {
+        // Pure punctuation (-, :, etc.) — not a Whisper word, don't index
+        frag.appendChild(document.createTextNode(part));
+      }
     }
     tn.parentNode?.replaceChild(frag, tn);
   }
@@ -274,7 +280,7 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
         const t = el.currentTime;
         const p = isFinite(el.duration) && el.duration > 0
           ? Math.round((t / el.duration) * 100) : 0;
-        updatePositionRef.current(findAudioWord(words, t + 0.25), p);
+        updatePositionRef.current(findAudioWord(words, t + 0.05), p);
       }
       rafRef.current = requestAnimationFrame(loop);
     };
