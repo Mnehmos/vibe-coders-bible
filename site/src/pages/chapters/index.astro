@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection } from 'astro:content';
-import { parseChapterMeta, PARTS } from '../../lib/chapter';
+import { parseChapterMeta, PARTS, ROMAN } from '../../lib/chapter';
 
 const entries = await getCollection('chapters');
 const chapters = entries
@@ -22,15 +22,14 @@ const base = import.meta.env.BASE_URL;
 
     {Object.entries(PARTS).map(([partNumStr, partName]) => {
       const partNum = parseInt(partNumStr);
-      const romanNumerals = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
       const partChapters = chapters.filter(c => c.partNum === partNum);
       if (partChapters.length === 0) return null;
       return (
         <section class="mb-12">
           <div class="flex items-center gap-4 mb-4">
-            <div class="font-mono text-2xl text-amber-500/30 font-bold">{romanNumerals[partNum]}</div>
+            <div class="font-mono text-2xl text-amber-500/30 font-bold">{ROMAN[partNum]}</div>
             <div>
-              <h2 class="text-lg font-semibold text-white">Part {romanNumerals[partNum]}</h2>
+              <h2 class="text-lg font-semibold text-white">Part {ROMAN[partNum]}</h2>
               <p class="text-sm text-[#666]">{partName}</p>
             </div>
           </div>

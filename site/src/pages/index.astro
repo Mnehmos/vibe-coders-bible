@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getCollection } from 'astro:content';
-import { parseChapterMeta, PARTS } from '../lib/chapter';
+import { parseChapterMeta, PARTS, ROMAN } from '../lib/chapter';
 
 const entries = await getCollection('chapters');
 const chapters = entries
@@ -77,7 +77,7 @@ const doctrine = [
       return (
         <div class="mb-10">
           <h3 class="font-mono text-xs uppercase tracking-widest text-amber-400/70 mb-3">
-            Part {['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'][partNum]} — {partName}
+            Part {ROMAN[partNum]} — {partName}
           </h3>
           <div class="space-y-1">
             {partChapters.map(ch => (

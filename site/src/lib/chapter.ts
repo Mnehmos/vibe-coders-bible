@@ -66,4 +66,11 @@ export const PARTS: Record<number, string> = {
   6: 'Case Studies From The Mnehmos Ecosystem',
   7: 'Failure Modes',
   8: 'The Field Manual',
+  9: 'The Production System',
+  10: 'The Presentation Layer',
+};
+
+export const ROMAN: Record<number, string> = {
+  1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V',
+  6: 'VI', 7: 'VII', 8: 'VIII', 9: 'IX', 10: 'X',
 };
