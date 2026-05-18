@@ -76,7 +76,7 @@ Gates are not bureaucracy. They are temporal firewalls between agent action and 
 
 An agent that can write anywhere can overwrite things that should not be overwritten.
 
-Configuration files, lock files, generated build artifacts, environment overrides — these are not code, but they control behavior. An agent with broad filesystem access can modify them incidentally while working on a related task. The modification may be syntactically valid and silently wrong.
+Configuration files, lock files, generated build artifacts, environment overrides - these are not code, but they control behavior. An agent with broad filesystem access can modify them incidentally while working on a related task. The modification may be syntactically valid and silently wrong.
 
 **Before:** Agent is given write access to the entire project directory. While updating a component, it also modifies `tsconfig.json` to resolve a type error. The change disables strict null checks project-wide.
 

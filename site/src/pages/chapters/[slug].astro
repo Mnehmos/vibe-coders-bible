@@ -4,6 +4,7 @@ import { getCollection, render } from 'astro:content';
 import { parseChapterMeta } from '../../lib/chapter';
 import Checklist from '../../components/Checklist';
 import Progress from '../../components/Progress';
+import Stagehand from '../../components/Stagehand';
 
 export async function getStaticPaths() {
   const entries = await getCollection('chapters');
@@ -61,6 +62,14 @@ const next = idx < sorted.length - 1 ? sorted[idx + 1] : null;
         {meta.keyLine && (
           <p class="key-line text-base">{meta.keyLine}</p>
         )}
+        <div class="mt-4">
+          <Stagehand
+            client:visible
+            body={entry.body ?? ''}
+            audioSrc={`${base}/audio/${entry.id}.mp3`}
+            wordsSrc={`${base}/audio/${entry.id}.words.json`}
+          />
+        </div>
       </header>
 
       <!-- Rendered markdown -->

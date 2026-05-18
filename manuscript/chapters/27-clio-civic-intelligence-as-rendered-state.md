@@ -16,7 +16,7 @@ Most software gets the trust model wrong quietly. A misconfigured permission her
 
 Civic applications do not have that buffer.
 
-A system that explains public affairs — geopolitical events, resource flows, infrastructure, policy decisions — is making claims about the world that people will use to make decisions. Those claims have a truth value. They can be wrong. When they are wrong and authoritative-looking, the cost is not a broken feature. The cost is misinformation with a confident interface.
+A system that explains public affairs - geopolitical events, resource flows, infrastructure, policy decisions - is making claims about the world that people will use to make decisions. Those claims have a truth value. They can be wrong. When they are wrong and authoritative-looking, the cost is not a broken feature. The cost is misinformation with a confident interface.
 
 Clio is a civic intelligence application built with that stakes profile in mind. Its architecture is designed around a single organizing principle: the database is the intelligence, the renderer is the body.
 
@@ -28,7 +28,7 @@ Clio is a MapLibre globe backed by a SQLite-WASM entity registry, with an OpenAI
 
 The globe renders civic reality. Countries, maritime boundaries, infrastructure corridors, resource routes, and geopolitical actors are entities in the SQLite registry. What appears on the globe is what the registry contains. The registry is the ground truth.
 
-The narration layer interprets what the registry contains. The model receives the current state of the relevant entities, the user's query or session context, and the production event log — and it produces explanation. That explanation is grounded in registry state. It does not produce registry state.
+The narration layer interprets what the registry contains. The model receives the current state of the relevant entities, the user's query or session context, and the production event log - and it produces explanation. That explanation is grounded in registry state. It does not produce registry state.
 
 This is not a technical distinction that architects make for elegance. It is the design decision that prevents the narration from becoming a vector for hallucinated geography.
 
@@ -110,9 +110,9 @@ Each control exists because a specific failure mode exists. The failure modes ar
 
 Models hallucinate. Users submit errors. Unreviewed content accumulates. Systems that do not build against these patterns will eventually exhibit them.
 
-Clio builds against them structurally. The result is an application where the narration can be as rich and contextual as the model can produce — because the architecture ensures the narration is rendering state, not creating it.
+Clio builds against them structurally. The result is an application where the narration can be as rich and contextual as the model can produce - because the architecture ensures the narration is rendering state, not creating it.
 
-## Practical Artifact — Civic AI Trust Design Checklist
+## Practical Artifact - Civic AI Trust Design Checklist
 
 Use this checklist when designing any AI system that makes claims about the world that users will act on.
 
@@ -122,7 +122,7 @@ Use this checklist when designing any AI system that makes claims about the worl
 | Is there a hard boundary between private session events and public world state? | Prevents unreviewed content from accumulating as fact |
 | Are trust tiers explicit and tracked per entity? | Prevents flattening of confidence levels across information sources |
 | Is promotion from lower tiers to higher tiers gated by review? | Prevents user-submitted or model-generated content from becoming permanent without verification |
-| Can a public user modify the shared world model? | Core invariant — the answer must be no |
+| Can a public user modify the shared world model? | Core invariant - the answer must be no |
 | Are inline commands (like Stagehand) validated against entity registry before execution? | Prevents hallucinated geography from rendering on authoritative surfaces |
 | Does the narration qualify claims by their source tier? | Preserves epistemic honesty in public-facing explanation |
 | Is there an audit trail linking public events to their source evidence? | Enables review and correction of promoted claims |

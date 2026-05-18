@@ -14,13 +14,13 @@ AI slop is what happens when generation crosses the commit boundary without earn
 
 "Slop" is a term that can carry contempt. It does not have to.
 
-The contempt version sneers at the generator — at the new builder who does not know what they accepted, at the AI for producing fluent nonsense, at the person who shipped something they did not fully understand.
+The contempt version sneers at the generator - at the new builder who does not know what they accepted, at the AI for producing fluent nonsense, at the person who shipped something they did not fully understand.
 
 That version of the word is not useful here.
 
 The structural version is more useful. Slop is a commit failure. It is output that bypassed the verification that would have caught its problems before they became state. It is generation without ownership.
 
-The term is worth keeping because it names a real category that other words miss. "Technical debt" is too neutral — slop is specifically the debt created by AI-generated output that was accepted uncritically. "Bad code" is too general — slop has a specific shape that comes from the properties of generation without verification.
+The term is worth keeping because it names a real category that other words miss. "Technical debt" is too neutral - slop is specifically the debt created by AI-generated output that was accepted uncritically. "Bad code" is too general - slop has a specific shape that comes from the properties of generation without verification.
 
 Understanding that shape is more valuable than assigning blame.
 
@@ -28,13 +28,13 @@ Understanding that shape is more valuable than assigning blame.
 
 Slop has recognizable patterns.
 
-**Wrong code that runs.** The output executes without error. The types check. The tests pass — because the tests were also generated and test the wrong thing. The code handles the case that was described. It does not handle the adjacent case that was not. The bug will surface in production, not in review.
+**Wrong code that runs.** The output executes without error. The types check. The tests pass - because the tests were also generated and test the wrong thing. The code handles the case that was described. It does not handle the adjacent case that was not. The bug will surface in production, not in review.
 
 **Tests that test nothing.** The test file exists. The coverage number is high. The tests assert that a function returns what it was called with, that a mock returns what the mock was told to return, that a class can be instantiated. None of the tests would fail for any bug that actually matters. The test suite is a confidence indicator, not a safety net.
 
 **Docs that lie.** The README describes the interface as it was when the model read the code. The code has since changed. The README has not. The setup instructions reference a command that no longer exists. The API example uses a parameter that was renamed. The documentation is worse than no documentation because it directs readers toward the wrong thing with official-looking confidence.
 
-**Fake citations.** The report includes references. The references look real — plausible journal names, reasonable author patterns, formats that match academic style. The sources do not exist. Or they exist but do not say what the report claims. The hallucination is not in the argument but in the evidence, which is harder to catch.
+**Fake citations.** The report includes references. The references look real - plausible journal names, reasonable author patterns, formats that match academic style. The sources do not exist. Or they exist but do not say what the report claims. The hallucination is not in the argument but in the evidence, which is harder to catch.
 
 **Overbroad abstractions.** The model generalized. It saw two similar functions and produced a generic framework that handles both. The framework has seven parameters and three required type arguments. It solves a problem that did not need solving. The two functions were fine. The framework is now a dependency.
 
@@ -96,9 +96,9 @@ The model that generates plausible, fluent, structurally correct output is harde
 
 Slop is a workflow failure. The workflow is the line of defense. Inexperienced builders need better workflows. So do experienced ones working at speed.
 
-## Practical Artifact — Slop Detector
+## Practical Artifact - Slop Detector
 
-Run this before accepting AI-generated output. The questions do not require expert judgment — they require paying attention.
+Run this before accepting AI-generated output. The questions do not require expert judgment - they require paying attention.
 
 | Question | What it catches |
 | --- | --- |

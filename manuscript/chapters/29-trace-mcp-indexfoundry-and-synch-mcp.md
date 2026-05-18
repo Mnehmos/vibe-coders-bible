@@ -20,17 +20,17 @@ Three systems: Trace MCP detects schema mismatches before runtime. IndexFoundry 
 
 Each one solves a failure mode that would otherwise require every project to solve it independently.
 
-## Trace MCP — Schema Mismatch Detection
+## Trace MCP - Schema Mismatch Detection
 
 Schema contracts are the verification layer between model output and system acceptance.
 
 When a model emits a JSON object that a tool will consume, the model cannot know whether its output matches the tool's expected schema. The model has no access to the tool's type definitions at runtime. It infers the shape from training data, documentation, and context.
 
-That inference is often correct. When it is wrong, the failure is usually silent at generation time. The wrong key name, the missing required field, the string where an integer was expected — these errors surface when the system tries to use the output, not when the model produces it.
+That inference is often correct. When it is wrong, the failure is usually silent at generation time. The wrong key name, the missing required field, the string where an integer was expected - these errors surface when the system tries to use the output, not when the model produces it.
 
 Trace MCP attacks this problem at the contract level.
 
-**What it does**: Extracts schemas from data producers — MCP tools, OpenAPI specs, TypeScript definitions, tRPC routes, REST endpoints, GraphQL schemas, gRPC Protobuf files. Traces consumer code to detect which properties it accesses. Compares the consumer's expectations against the producer's actual contract.
+**What it does**: Extracts schemas from data producers - MCP tools, OpenAPI specs, TypeScript definitions, tRPC routes, REST endpoints, GraphQL schemas, gRPC Protobuf files. Traces consumer code to detect which properties it accesses. Compares the consumer's expectations against the producer's actual contract.
 
 If the consumer accesses a field that the producer does not emit, Trace MCP surfaces the mismatch before it becomes a runtime error. If the producer changes its schema and the consumer has not caught up, the mismatch is detectable before deployment.
 
@@ -38,7 +38,7 @@ The 1,047 tests across 16 suites cover the full range of consumer and producer t
 
 **What this teaches**: Schema contracts are not documentation. They are executable claims. The claim "this tool accepts this shape" should be verifiable, not assumed. Trace MCP makes implicit contracts explicit and testable across the full stack.
 
-## IndexFoundry — Deterministic Retrieval Pipelines
+## IndexFoundry - Deterministic Retrieval Pipelines
 
 Retrieval-augmented generation is useful. It is also a place where non-determinism creeps in undetected.
 
@@ -48,7 +48,7 @@ IndexFoundry solves this with a pipeline architecture that treats every stage as
 
 **Two workflows**:
 
-*Run-based pipeline*: Raw sources → Extraction → Normalization → Indexing → Serving. Each stage produces an output with a manifest and hash. The manifest records what was processed. The hash enables comparison across runs. The pipeline is not a black box — it is a sequence of stages with documented inputs and outputs.
+*Run-based pipeline*: Raw sources -> Extraction -> Normalization -> Indexing -> Serving. Each stage produces an output with a manifest and hash. The manifest records what was processed. The hash enables comparison across runs. The pipeline is not a black box - it is a sequence of stages with documented inputs and outputs.
 
 *Project-based workflow*: Self-contained deployable RAG applications with an MCP server, Dockerfile, and deployment configuration. The full stack is packaged and reproducible.
 
@@ -62,7 +62,7 @@ The model queries the index. It does not own the index. The index is built by a 
 
 **What this teaches**: Retrieval pipelines are control surfaces. The quality of the model's answers depends on what the retrieval pipeline provides. That pipeline should be as controlled as the engine it serves. Determinism, auditability, and pinned dependencies are not over-engineering. They are the conditions for trusting the retrieval output.
 
-## Synch MCP — Persistent Agent Memory And Coordination
+## Synch MCP - Persistent Agent Memory And Coordination
 
 The model's context window is not memory.
 
@@ -72,7 +72,7 @@ Synch MCP provides the infrastructure for memory that is real.
 
 **Components**:
 
-*Active Context*: Per-project working state snapshots. The current task, the active branch, the in-progress work, the risk flags — all persisted as a structured record that a new session or a second agent can read.
+*Active Context*: Per-project working state snapshots. The current task, the active branch, the in-progress work, the risk flags - all persisted as a structured record that a new session or a second agent can read.
 
 *Filing Cabinet*: File indexing with summaries for fast retrieval. Instead of re-reading entire files every session, an agent can retrieve the indexed summary and load full content only when needed. Context-efficient by design.
 
@@ -92,17 +92,17 @@ Synch MCP makes memory structural and coordination explicit. Any multi-agent sys
 
 Together, these three systems describe a layered infrastructure for AI-assisted work.
 
-**Trace MCP** — the contract layer. Validates that model output matches system expectations before runtime.
+**Trace MCP** - the contract layer. Validates that model output matches system expectations before runtime.
 
-**IndexFoundry** — the retrieval layer. Ensures the model operates on deterministic, auditable, high-quality context.
+**IndexFoundry** - the retrieval layer. Ensures the model operates on deterministic, auditable, high-quality context.
 
-**Synch MCP** — the memory and coordination layer. Persists state across session boundaries and synchronizes across agents.
+**Synch MCP** - the memory and coordination layer. Persists state across session boundaries and synchronizes across agents.
 
 The nervous system metaphor holds:
 
-- Trace MCP is a reflex gate — it catches mismatches before they propagate.
-- IndexFoundry is the sensory layer — it determines what the agent perceives.
-- Synch MCP is the memory layer — it determines what the agent retains and shares.
+- Trace MCP is a reflex gate - it catches mismatches before they propagate.
+- IndexFoundry is the sensory layer - it determines what the agent perceives.
+- Synch MCP is the memory layer - it determines what the agent retains and shares.
 
 No individual project needs to build all three from scratch. When these controls are infrastructure, every project that deploys on top of them inherits their reliability.
 
@@ -136,7 +136,7 @@ It is visible when:
 
 These are not exotic failure modes. They are the predictable consequences of skipping the infrastructure.
 
-## Practical Artifact — Infrastructure Control Assessment
+## Practical Artifact - Infrastructure Control Assessment
 
 | Question | What it covers |
 | --- | --- |

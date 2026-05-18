@@ -42,7 +42,7 @@ The danger is not the approach. The danger is the assumption that generation equ
 
 The senior engineer using AI assistance is not vibe coding in the dangerous sense. They bring judgment to every commit. They know what the model got wrong. They know what to test.
 
-The newer builder generating a full authentication system without understanding sessions, tokens, expiry, revocation, or storage is vibe coding in the dangerous sense — not because they are using AI, but because the gap between what was generated and what they can own is too wide.
+The newer builder generating a full authentication system without understanding sessions, tokens, expiry, revocation, or storage is vibe coding in the dangerous sense - not because they are using AI, but because the gap between what was generated and what they can own is too wide.
 
 The tool is not the problem. The accountability gap is the problem.
 
@@ -94,7 +94,7 @@ The model does not know what the user's production traffic looks like. It does n
 
 The model knows patterns. The builder owns the system.
 
-That distinction is the gap that new builders most often underestimate. The model can appear to understand the whole problem. That appearance is convincing. It is the same appearance that makes the output useful — and the same appearance that makes unchecked output dangerous.
+That distinction is the gap that new builders most often underestimate. The model can appear to understand the whole problem. That appearance is convincing. It is the same appearance that makes the output useful - and the same appearance that makes unchecked output dangerous.
 
 ## The Difference Between Appearing And Reliable
 
@@ -112,7 +112,7 @@ A model will generate the first version. The first version may work in the demo.
 
 Who decided what the session lifetime should be? Who verified the storage behavior? Who tested the logout path? Who reviewed the scope? Who decided what happens when a second login arrives while the first is active?
 
-These questions do not live in the code the model generated. They live in the decisions a person made — or failed to make — when reviewing what the model produced.
+These questions do not live in the code the model generated. They live in the decisions a person made - or failed to make - when reviewing what the model produced.
 
 Vibe coding lowers the cost of getting to appearance.
 
@@ -160,7 +160,7 @@ Vibe coding is real.
 
 The responsibility has always been real too.
 
-The new question is whether the system is designed to catch what the model gets wrong — before the wrong thing becomes permanent.
+The new question is whether the system is designed to catch what the model gets wrong - before the wrong thing becomes permanent.
 
 ## Practical Artifact - Generation vs. Ownership Checklist
 

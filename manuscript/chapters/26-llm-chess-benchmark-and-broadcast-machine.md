@@ -103,7 +103,7 @@ The chess arena makes this measurement automatic because the game produces natur
 
 The discipline is the same. Measure against a reference. Log the result. Let the signal accumulate.
 
-## Practical Artifact — Output Routing Table Template
+## Practical Artifact - Output Routing Table Template
 
 When a model produces mixed output in a workflow, map it before committing.
 

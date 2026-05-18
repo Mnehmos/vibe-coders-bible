@@ -44,7 +44,7 @@ Not wrong because it is malfunctioning. Wrong because the output is a continuati
 
 Schema validation stops this at the boundary.
 
-A JSON Schema, a Zod validator, a Pydantic model, a TypeSpec contract — each is a structural description of what valid output looks like. The model's output is measured against that description before it reaches any sink. If the output is invalid, the failure is immediate, localized, and legible. The field is wrong. The type is wrong. The value is not in the enumeration.
+A JSON Schema, a Zod validator, a Pydantic model, a TypeSpec contract - each is a structural description of what valid output looks like. The model's output is measured against that description before it reaches any sink. If the output is invalid, the failure is immediate, localized, and legible. The field is wrong. The type is wrong. The value is not in the enumeration.
 
 This is the engineering control equivalent of a type system for data that flows between components. It does not require trusting the model. It requires describing what valid looks like, and then checking.
 
@@ -96,16 +96,16 @@ Use this table to audit the engineering controls on an AI-assisted project. For 
 
 | Control | What it catches | Where it runs | Required? | Can AI draft it? |
 | --- | --- | --- | --- | --- |
-| Unit tests | Logic errors and regressions in individual functions | Local and CI | Yes | Yes — from behavior description |
-| Integration tests | Boundary failures between components or services | CI (and optionally local) | Yes | Yes — from interface descriptions |
-| Type check (strict) | Interface drift, invented methods, null violations | Local (on save) and CI | Yes | Partially — AI can propose types, human verifies |
-| Schema validation | Invalid model output before it reaches a sink | Runtime (at boundary) and tests | Yes | Yes — from example outputs or TypeScript types |
-| Contract tests | API shape changes that would break callers | CI | Yes, if multi-service | Yes — from OpenAPI spec or interface definitions |
+| Unit tests | Logic errors and regressions in individual functions | Local and CI | Yes | Yes - from behavior description |
+| Integration tests | Boundary failures between components or services | CI (and optionally local) | Yes | Yes - from interface descriptions |
+| Type check (strict) | Interface drift, invented methods, null violations | Local (on save) and CI | Yes | Partially - AI can propose types, human verifies |
+| Schema validation | Invalid model output before it reaches a sink | Runtime (at boundary) and tests | Yes | Yes - from example outputs or TypeScript types |
+| Contract tests | API shape changes that would break callers | CI | Yes, if multi-service | Yes - from OpenAPI spec or interface definitions |
 | Lint rules | Style violations, simple logic errors, forbidden patterns | Local and CI | Yes | Configuration only; AI can propose rule sets |
-| Snapshot / golden file tests | Unexpected changes to stable output (HTML, JSON, SQL) | CI | Recommended | Yes — AI can generate initial snapshots |
-| Branch protection + CI gate | Merges before controls pass | Repository platform | Yes | Not applicable — policy configuration |
-| Regression tests | Recurrence of previously fixed bugs | CI | Yes | Yes — from bug report or reproduction steps |
-| Reproducible build check | Build output differences between environments | CI | Recommended | Partially — AI can propose lockfile and env config |
+| Snapshot / golden file tests | Unexpected changes to stable output (HTML, JSON, SQL) | CI | Recommended | Yes - AI can generate initial snapshots |
+| Branch protection + CI gate | Merges before controls pass | Repository platform | Yes | Not applicable - policy configuration |
+| Regression tests | Recurrence of previously fixed bugs | CI | Yes | Yes - from bug report or reproduction steps |
+| Reproducible build check | Build output differences between environments | CI | Recommended | Partially - AI can propose lockfile and env config |
 
 For each row marked "Required?", treat an empty or disabled state as a gap. Prioritize filling required gaps before extending AI agent capability.
 

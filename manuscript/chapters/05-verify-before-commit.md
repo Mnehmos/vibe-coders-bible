@@ -34,7 +34,7 @@ Generation-level hallucination is when the model emits something false. The mode
 
 Commit-level hallucination is when the system accepts something false as state.
 
-The model can hallucinate freely in the proposal lane. That is acceptable. The model cannot hallucinate into the production database, the public knowledge base, the deployed codebase, or the trust model — not because hallucination stops there, but because those are the places where false state has real consequences that do not automatically reverse.
+The model can hallucinate freely in the proposal lane. That is acceptable. The model cannot hallucinate into the production database, the public knowledge base, the deployed codebase, or the trust model - not because hallucination stops there, but because those are the places where false state has real consequences that do not automatically reverse.
 
 The distinction matters because the correct response to each is different.
 
@@ -74,7 +74,7 @@ Silent commit: the content is published without checking whether the factual cla
 
 What it costs: the article states that a specific regulation took effect in a particular year. The year is wrong. The piece goes out to ten thousand readers. Corrections require public notice. Trust degrades.
 
-The verification gate: every factual claim in public content needs a source. Not a citation the model invented — a source a human checked. Claims that cannot be sourced should be labeled as uncertain or removed. The polish of the prose is not evidence of the accuracy of the claims.
+The verification gate: every factual claim in public content needs a source. Not a citation the model invented - a source a human checked. Claims that cannot be sourced should be labeled as uncertain or removed. The polish of the prose is not evidence of the accuracy of the claims.
 
 ## The Production Deployment
 
@@ -114,7 +114,7 @@ Silent commit: the result is added to application state without confirming that 
 
 What it costs: the model reports that a file was written. The file was not written because a permission error occurred and the model did not surface the failure correctly. The downstream task assumes the file exists. Silent failure propagates through the pipeline.
 
-The verification gate: tool calls have receipts. The system does not accept a model's report that a tool call succeeded — it checks the side effect directly. If a file was supposed to be written, the file is checked. If an API call was supposed to update a record, the record is read back. Agent-to-agent trust transfer requires the same skepticism as human-to-system trust: verify the state, not the claim.
+The verification gate: tool calls have receipts. The system does not accept a model's report that a tool call succeeded - it checks the side effect directly. If a file was supposed to be written, the file is checked. If an API call was supposed to update a record, the record is read back. Agent-to-agent trust transfer requires the same skepticism as human-to-system trust: verify the state, not the claim.
 
 ## Building To The Key Line
 

@@ -73,6 +73,14 @@ This file defines the canonical reading and build order for PDF, DOCX, ebook, an
 6. `chapters/39-review-patterns-for-ai-code.md`
 7. `chapters/40-definition-of-done-for-ai-assisted-work.md`
 
+## Part IX - The Production System
+
+1. `chapters/41-the-ai-factory.md`
+
+## Part X - The Presentation Layer
+
+1. `chapters/42-stagehand-narrated-state-choreography.md`
+
 ## Back Matter
 
 1. `back-matter/conclusion-from-vibes-to-discipline.md`

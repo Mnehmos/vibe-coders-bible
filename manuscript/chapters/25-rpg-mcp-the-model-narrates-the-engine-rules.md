@@ -43,7 +43,7 @@ The engine uses three layers:
 
 **Rules engine** (`src/engine`): The deterministic core. It decides whether an action is legal, what its effects are, and what state transitions follow. It does not ask the model. It applies the rules.
 
-**SQLite persistence** (`src/storage`): State that outlives the context window. Character sheets, inventory, spell slots, quest progress, NPC relationships — these exist in a database, not in the conversation. When the model loses its context, the game does not lose its state.
+**SQLite persistence** (`src/storage`): State that outlives the context window. Character sheets, inventory, spell slots, quest progress, NPC relationships - these exist in a database, not in the conversation. When the model loses its context, the game does not lose its state.
 
 ## What The Model Can Do
 
@@ -126,7 +126,7 @@ The doctrine that emerges from RPG-MCP is not game-specific:
 
 Software systems with real consequences need the same separations. The health points are different. The principle is the same.
 
-## Practical Artifact — State Substrate Checklist
+## Practical Artifact - State Substrate Checklist
 
 | Question | What it protects |
 | --- | --- |

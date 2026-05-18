@@ -105,7 +105,7 @@ The model cannot produce a wrong engineering answer because the model does not p
 
 That is not a limitation of the model. It is a design decision about which lane owns what.
 
-## Practical Artifact — Computation Boundary Checklist
+## Practical Artifact - Computation Boundary Checklist
 
 Use this checklist when an AI-assisted workflow includes numerical outputs or consequential decisions.
 

@@ -48,13 +48,13 @@ This is not a problem of code quality at the line level. The lines may look fine
 
 The problem is ownership. Nobody has made a judgment about whether each piece of the accumulated output is actually correct, complete, sufficient, or appropriate. The code exists. Nobody understands it. Nobody owns it.
 
-That gap — between what has been generated and what has been genuinely judged — is the judgment gap. It is invisible on a burndown chart. It shows up when the system breaks in production in a way that nobody recognizes, because nobody understood the code well enough to know what could go wrong.
+That gap - between what has been generated and what has been genuinely judged - is the judgment gap. It is invisible on a burndown chart. It shows up when the system breaks in production in a way that nobody recognizes, because nobody understood the code well enough to know what could go wrong.
 
 ## The "Looks Right" Trap
 
 Plausible wrongness is the central failure mode of AI-generated code.
 
-The model produces confident output. It does not hedge. It does not ask for clarification on the edge cases it is quietly getting wrong. It writes the code, the tests pass, and the reviewer — under time pressure, grateful for the speed — scans the output and sees nothing obviously broken.
+The model produces confident output. It does not hedge. It does not ask for clarification on the edge cases it is quietly getting wrong. It writes the code, the tests pass, and the reviewer - under time pressure, grateful for the speed - scans the output and sees nothing obviously broken.
 
 But plausible is not correct. Plausible means it looks like the right answer. It conforms to the expected shape. It uses the right vocabulary. It compiles and runs. The error lives underneath: in an assumption the model made that does not match the production environment, in a permission boundary the model did not know about, in an edge case the model's pattern-matching has seen solved incorrectly a thousand times.
 
@@ -72,9 +72,9 @@ When code is generated, the understanding is not automatic. You receive a block 
 
 Now the codebase contains state that nobody understands.
 
-Not misunderstood state — state that was never understood. It arrived already formed. The developer accepted the shape without tracing the interior.
+Not misunderstood state - state that was never understood. It arrived already formed. The developer accepted the shape without tracing the interior.
 
-This is acceptance without understanding, and it compounds. Each accepted block that was not traced is a future debugging session that cannot begin with "let me read this code I know well." It begins with "let me re-read this code I have never actually understood" — under pressure, when something has already broken.
+This is acceptance without understanding, and it compounds. Each accepted block that was not traced is a future debugging session that cannot begin with "let me read this code I know well." It begins with "let me re-read this code I have never actually understood" - under pressure, when something has already broken.
 
 Experienced teams have always accumulated technical debt. This is faster.
 
@@ -90,7 +90,7 @@ Both skills matter. They are not the same skill. And they do not come together a
 
 The builders who will produce durable systems from AI assistance are the ones who develop both. The generation skill is easy to acquire. The model is patient and capable. The judgment skill takes longer. It is built from understanding systems, tracing code, reading failures, and accumulating a mental model of what goes wrong and why.
 
-AI can accelerate judgment in some ways — it can propose alternatives, surface edge cases, suggest tests. But it cannot create judgment. The person has to build it themselves, from real experience with real consequences.
+AI can accelerate judgment in some ways - it can propose alternatives, surface edge cases, suggest tests. But it cannot create judgment. The person has to build it themselves, from real experience with real consequences.
 
 ## What Judgment Looks Like In Practice
 
@@ -98,7 +98,7 @@ When judgment is present, a developer reviewing AI output does not scan for obvi
 
 They ask: what assumptions did the model make that I have not verified? They ask: what happens when the input is empty, or malformed, or adversarially constructed? They ask: is this the right layer to solve this problem? They ask: what would make this look correct but be wrong?
 
-They do not ask these questions because they were told to. They ask because they own the system and they know that ownership means responsibility for what the code does — not just what it appears to do.
+They do not ask these questions because they were told to. They ask because they own the system and they know that ownership means responsibility for what the code does - not just what it appears to do.
 
 When judgment is absent, a developer accepts what passes. If it compiles, it ships. If the tests pass, it is correct. If the reviewer did not raise an issue, the issue does not exist.
 
@@ -118,7 +118,7 @@ That is the architecture this book builds toward. Not a discipline that exists i
 
 The model can produce. The process must demand judgment before the production becomes permanent.
 
-## Practical Artifact — Commit Judgment Checklist
+## Practical Artifact - Commit Judgment Checklist
 
 Use this checklist before accepting AI-generated output into the codebase. The questions are not optional steps. They are the minimum conditions for genuine ownership.
 

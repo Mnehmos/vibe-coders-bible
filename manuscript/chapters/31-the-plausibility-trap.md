@@ -18,7 +18,7 @@ The model returns a Python syntax error in a JavaScript file. It uses a function
 
 Almost right output survives review.
 
-The function exists in the library — but in a different major version. The variable name is correct — but it shadows a different variable with a different meaning. The logic is right for the case that was described — but silently wrong for the case that was not. The SQL query returns rows — but not the rows the caller expected, because the join condition is subtly off.
+The function exists in the library - but in a different major version. The variable name is correct - but it shadows a different variable with a different meaning. The logic is right for the case that was described - but silently wrong for the case that was not. The SQL query returns rows - but not the rows the caller expected, because the join condition is subtly off.
 
 Almost right output has enough surface coherence to pass a casual review. It fails when the edge case hits, when the load increases, when the input takes a shape the model did not see in its training data.
 
@@ -44,7 +44,7 @@ The model suggests an approach using an API that was deprecated two major versio
 
 The suggested configuration key was renamed. The import path changed. The callback was replaced by a promise. The CLI flag was removed.
 
-Version drift is plausible because the old API was real. The model is not hallucinating — it is describing something that existed. The problem is temporal, not factual.
+Version drift is plausible because the old API was real. The model is not hallucinating - it is describing something that existed. The problem is temporal, not factual.
 
 Checking generated code against the installed version of a dependency is not optional. The model cannot know which version is running.
 
@@ -76,7 +76,7 @@ Misread errors are plausible because the error message often does match common p
 
 The model fixes the test case that was provided.
 
-The fix is correct for the input in the test. It fails for the input that was not tested. The model addressed the symptom that was visible — the specific failing assertion — not the underlying logic failure that produces the failure.
+The fix is correct for the input in the test. It fails for the input that was not tested. The model addressed the symptom that was visible - the specific failing assertion - not the underlying logic failure that produces the failure.
 
 Partial fixes are plausible because the failing test now passes. Green tests feel like evidence of correctness. They are evidence that the specific tested behavior is currently correct. They say nothing about the behavior that was not tested.
 
@@ -106,7 +106,7 @@ When reviewing AI-generated code, read the code before reading the explanation.
 
 ## Training The Review Muscle
 
-The plausibility trap cannot be avoided by reading more carefully. Plausible output was designed — accidentally, by the structure of generation — to pass casual reading.
+The plausibility trap cannot be avoided by reading more carefully. Plausible output was designed - accidentally, by the structure of generation - to pass casual reading.
 
 The defense is a review habit that forces engagement with failure modes, not just surface coherence.
 
@@ -116,7 +116,7 @@ This is not paranoia. It is the same discipline a senior engineer applies when r
 
 The model is not a junior engineer. It is a senior engineer who has never run the code in production and does not know the constraints the production system has learned the hard way.
 
-## Practical Artifact — Plausibility Trap Review
+## Practical Artifact - Plausibility Trap Review
 
 Run this before accepting any AI-generated change that will cross a commit boundary.
 

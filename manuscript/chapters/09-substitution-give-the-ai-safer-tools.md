@@ -18,7 +18,7 @@ Sometimes the agent genuinely needs to touch the database. It needs to modify fi
 
 Substitution is the answer. You do not take the capability away. You replace the dangerous form of the capability with a safer form that accomplishes the same real job.
 
-A chainsaw and a socket wrench are both tools. One is appropriate for rough timber. The other is appropriate for fasteners. Handing someone a chainsaw because "it can do anything" is not more helpful — it is riskier, harder to control, and worse at the actual job.
+A chainsaw and a socket wrench are both tools. One is appropriate for rough timber. The other is appropriate for fasteners. Handing someone a chainsaw because "it can do anything" is not more helpful - it is riskier, harder to control, and worse at the actual job.
 
 When you give an agent raw database access, you give it a chainsaw. It can do anything to the database. When you give it a typed migration tool, you give it the socket wrench it actually needs: a focused instrument that can do the job correctly and cannot accidentally do the things it should not.
 
@@ -52,11 +52,11 @@ The allowlist is not a restriction on the agent's intelligence. It is a descript
 
 Filesystem access without scope is access to everything the filesystem contains.
 
-Configuration files, secrets checked in accidentally, build artifacts, installed packages, the `.git` directory — everything is reachable. The agent working on a component does not need access to the deployment configuration. The agent refactoring a module does not need access to the environment file.
+Configuration files, secrets checked in accidentally, build artifacts, installed packages, the `.git` directory - everything is reachable. The agent working on a component does not need access to the deployment configuration. The agent refactoring a module does not need access to the environment file.
 
 **Unsafe:** Agent has a file write tool with no path restrictions. It can write anywhere the process has permissions.
 
-**Safer:** Agent has a file tool scoped to `src/` and `tests/`. Write attempts outside that scope return an explicit error. The error is not a prompt instruction — it is a structural rejection that logs the attempt.
+**Safer:** Agent has a file tool scoped to `src/` and `tests/`. Write attempts outside that scope return an explicit error. The error is not a prompt instruction - it is a structural rejection that logs the attempt.
 
 Scoped access also makes the agent's behavior auditable. Every write lands in a known directory. A reviewer can look at the set of changed files and confirm nothing is outside scope. With broad access, that audit requires checking every changed path individually.
 
@@ -80,7 +80,7 @@ There is a second benefit to substitution beyond safety: legibility.
 
 When an agent calls `create_migration(table="users", operation="add_column", definition={"name": "deleted_at", "type": "timestamp", "nullable": true})`, the intent is readable. A reviewer can see exactly what schema change is being proposed, verify it is correct, and approve or reject it.
 
-When an agent runs `ALTER TABLE users ADD COLUMN deleted_at TIMESTAMP;` in a raw SQL shell, the intent is also legible — but the surrounding context is not. Is this in a migration file? Will it be tracked? Was it applied to staging first? Is there a rollback? The raw query answers none of these questions.
+When an agent runs `ALTER TABLE users ADD COLUMN deleted_at TIMESTAMP;` in a raw SQL shell, the intent is also legible - but the surrounding context is not. Is this in a migration file? Will it be tracked? Was it applied to staging first? Is there a rollback? The raw query answers none of these questions.
 
 Typed tools make intent structural. The tool's arguments are the intent. Logs of tool calls are an audit trail of what the agent decided, not just what it typed.
 
@@ -93,10 +93,10 @@ Use this table when deciding which tools to give an agent. For each unsafe acces
 | Unsafe access | Safer substitute | What it constrains | Example |
 | --- | --- | --- | --- |
 | Raw SQL shell | Typed migration tool with dry-run mode | Prevents ad-hoc DML; all changes are tracked migration files | `create_migration(table, operation, definition)` |
-| Arbitrary bash shell | Task runner with named allowlisted commands | Prevents system-level access; only pre-defined scripts run | `run_task(name="test")` → executes `npm test` |
+| Arbitrary bash shell | Task runner with named allowlisted commands | Prevents system-level access; only pre-defined scripts run | `run_task(name="test")` -> executes `npm test` |
 | Broad file write (any path) | Scoped file tool restricted to `src/` and `tests/` | Prevents config and dotfile mutations; all writes are auditable | `write_file(path="src/components/Card.tsx", content=...)` |
 | Live third-party API client | Sandbox or test-mode client | Prevents real-world side effects; exercises same code path | Stripe test mode, SendGrid sandbox, mock HTTP server |
 | Direct UI state mutation | Component prop or state reducer call | Prevents invisible side-channel state changes; changes are traceable | `dispatch({type: "SET_VISIBLE", payload: false})` |
 | Raw HTTP requests | Typed API client with schema validation | Prevents invented endpoints; response is validated before use | Generated OpenAPI client; unknown method is a compile error |
 | Freeform config edit | Schema-validated config patch | Prevents structurally invalid configuration; changes are diffable | Config tool validates against JSON Schema before writing |
-| Arbitrary npm installs | Package manager wrapper with allowlisted packages | Prevents supply-chain additions; dependency changes are explicit | `add_dependency(name="zod")` → runs `npm install zod`, requires human confirm |
+| Arbitrary npm installs | Package manager wrapper with allowlisted packages | Prevents supply-chain additions; dependency changes are explicit | `add_dependency(name="zod")` -> runs `npm install zod`, requires human confirm |

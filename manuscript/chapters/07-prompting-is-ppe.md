@@ -68,13 +68,13 @@ The move that matters is converting a prompt warning into a stronger control.
 
 Every prompt instruction is a hypothesis about risk. The instruction reveals what the team is worried about. The question is whether that worry is being handled at the right level.
 
-"Do not edit configuration files" → why can the agent reach configuration files at all? Scope the filesystem access. Now the warning is unnecessary.
+"Do not edit configuration files" -> why can the agent reach configuration files at all? Scope the filesystem access. Now the warning is unnecessary.
 
-"Do not call production APIs directly" → why does the agent have production credentials? Remove them from context. Use a sandbox client instead.
+"Do not call production APIs directly" -> why does the agent have production credentials? Remove them from context. Use a sandbox client instead.
 
-"Always confirm before deleting" → why does the agent have delete capability without a gate? Add a confirmation step to the tool itself, or remove delete and replace with a soft-delete function that requires a second call.
+"Always confirm before deleting" -> why does the agent have delete capability without a gate? Add a confirmation step to the tool itself, or remove delete and replace with a soft-delete function that requires a second call.
 
-"Do not invent API methods that do not exist" → the model will sometimes invent them anyway. Add a type-checked client. Now invented methods fail at compile time.
+"Do not invent API methods that do not exist" -> the model will sometimes invent them anyway. Add a type-checked client. Now invented methods fail at compile time.
 
 The pattern is the same every time. Identify the prompt warning. Ask why the warning is necessary. Remove the capability or add a structural guard. Retire the warning.
 

@@ -52,7 +52,7 @@ After the gate, the model is not authoritative. Its proposal does not decide wha
 
 The gate is not an opinion about the model's output. It is a structural requirement that a proposal must satisfy before it becomes state.
 
-This separation is why the posture works. The model can be creative because the gate catches errors. The gate can be trusted because it does not care how confident the proposal looked. The human can stay focused on intent because they are not responsible for catching every mistake in the output — the system is.
+This separation is why the posture works. The model can be creative because the gate catches errors. The gate can be trusted because it does not care how confident the proposal looked. The human can stay focused on intent because they are not responsible for catching every mistake in the output - the system is.
 
 The worst pattern is removing the gate because the output looks good. Looking good is the model's permanent state. It looks good when it is correct. It looks equally good when it is subtly wrong in a way that will cost three hours at 11pm six weeks from now.
 
@@ -62,17 +62,17 @@ The repo is not where code lives. It is the operating context that makes control
 
 The model cannot be a useful proposer if it does not understand what it is proposing into. A proposal that ignores the existing schema is useless. A proposal that assumes a library the project does not have is broken. A proposal that conflicts with an existing contract creates debt. A proposal that violates the team's naming conventions is just a draft.
 
-The repo holds the shared context. The file structure, the tests, the schemas, the types, the lockfile, the config, the existing patterns — all of it describes what the current system is and what constraints any proposal must respect.
+The repo holds the shared context. The file structure, the tests, the schemas, the types, the lockfile, the config, the existing patterns - all of it describes what the current system is and what constraints any proposal must respect.
 
 This is why the prompt matters but the context matters more. A poorly-worded prompt into a well-loaded context often produces a usable proposal. A well-worded prompt into an empty context produces something generic that does not fit.
 
-Loading the model with the right context — the relevant file, the schema it must match, the tests it must pass, the interface it must implement — is the act of giving the proposer the operating constraints they need. It moves the proposal from generic to situated.
+Loading the model with the right context - the relevant file, the schema it must match, the tests it must pass, the interface it must implement - is the act of giving the proposer the operating constraints they need. It moves the proposal from generic to situated.
 
 The tests, schemas, and tools in the repo are not just verification infrastructure. They are the specification the model proposes against. They make proposals checkable. They turn "does this look right?" into "does this pass?"
 
 ## Why The Crude Positions Fail
 
-"Never trust AI" sounds disciplined. It is not. It refuses to engage with the actual structure of the problem. The question is not whether to trust the model. The question is what verification is required before a proposal becomes state. A team that trusts the gate can accept proposals freely, because the gate will catch what the proposal got wrong. A team that refuses proposals because they came from a model is not being careful — it is being inefficient without a corresponding safety benefit.
+"Never trust AI" sounds disciplined. It is not. It refuses to engage with the actual structure of the problem. The question is not whether to trust the model. The question is what verification is required before a proposal becomes state. A team that trusts the gate can accept proposals freely, because the gate will catch what the proposal got wrong. A team that refuses proposals because they came from a model is not being careful - it is being inefficient without a corresponding safety benefit.
 
 "Just ship it" sounds fast. It is not fast for long. Silent errors accumulate. Technical debt that nobody understands is not fast to fix. A system that grew by accepting proposals without verification is a system that nobody can safely change, because the map of what the code actually does does not exist. The speed at the start is borrowed from the reliability at the end.
 
@@ -107,49 +107,49 @@ Use this prompt template when delegating to a model. Fill in every field before 
 
 ```text
 Goal:
-  [One sentence: what should exist or behave differently after this task]
+ [One sentence: what should exist or behave differently after this task]
 
 Scope:
-  [List the specific files, modules, or behaviors this task touches]
+ [List the specific files, modules, or behaviors this task touches]
 
 Out of scope:
-  [List what must not change — existing interfaces, unrelated features, other modules]
+ [List what must not change - existing interfaces, unrelated features, other modules]
 
 Constraints:
-  [List non-negotiable requirements: schema compatibility, API contract, security boundary, etc.]
+ [List non-negotiable requirements: schema compatibility, API contract, security boundary, etc.]
 
 Validation command:
-  [The exact command that will confirm success: test runner, type checker, linter, schema validator]
+ [The exact command that will confirm success: test runner, type checker, linter, schema validator]
 
 Expected handoff:
-  [What the model should produce: updated file(s), passing tests, schema change, summary of decisions made]
+ [What the model should produce: updated file(s), passing tests, schema change, summary of decisions made]
 ```
 
-**Example — filled out:**
+**Example - filled out:**
 
 ```text
 Goal:
-  Add cursor-based pagination to GET /users so clients can page through results
-  without offset drift.
+ Add cursor-based pagination to GET /users so clients can page through results
+ without offset drift.
 
 Scope:
-  src/routes/users.ts, src/schemas/user.schema.ts, tests/users.test.ts
+ src/routes/users.ts, src/schemas/user.schema.ts, tests/users.test.ts
 
 Out of scope:
-  Authentication logic, frontend components, caching layer, other routes.
+ Authentication logic, frontend components, caching layer, other routes.
 
 Constraints:
-  Response envelope must stay compatible with existing clients: { data: [], meta: { next_cursor } }.
-  All existing passing tests must continue to pass.
-  No new dependencies without approval.
+ Response envelope must stay compatible with existing clients: { data: [], meta: { next_cursor } }.
+ All existing passing tests must continue to pass.
+ No new dependencies without approval.
 
 Validation command:
-  npm test -- users.test.ts && npx tsc --noEmit
+ npm test -- users.test.ts && npx tsc --noEmit
 
 Expected handoff:
-  Updated route handler with cursor logic, updated schema with next_cursor field,
-  at least two new test cases (mid-page and last-page), and a one-paragraph summary
-  of the cursor strategy chosen.
+ Updated route handler with cursor logic, updated schema with next_cursor field,
+ at least two new test cases (mid-page and last-page), and a one-paragraph summary
+ of the cursor strategy chosen.
 ```
 
 The template is not a ritual. It is the minimum specification required to make a proposal checkable. A proposal without a validation command is an opinion. A proposal with one is an experiment.

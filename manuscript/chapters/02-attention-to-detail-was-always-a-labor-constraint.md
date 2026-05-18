@@ -246,13 +246,13 @@ Use this audit on an AI-assisted project. The goal is to find detail that was pr
 
 | Detail area | Current state | AI can draft | Validator | Owner |
 | --- | --- | --- | --- | --- |
-| Tests | Missing, weak, or stale | Test cases, fixtures, regression tests | Test run, fail-before-fix check |  |
-| Docs | Missing, weak, or stale | README updates, examples, setup notes | Command check, reviewer check |  |
-| Schemas | Missing, weak, or stale | JSON Schema, Zod, OpenAPI drafts | Schema validation, contract tests |  |
-| Diagrams | Missing, weak, or stale | Mermaid drafts, data-flow maps | Architecture review, code comparison |  |
-| Migrations | Missing, weak, or stale | Dry-run and rollback plan | Staging run, backup check |  |
-| Threat model | Missing, weak, or stale | Asset and boundary map | Security review |  |
-| Handoff | Missing, weak, or stale | Changed-file summary, risks, next step | Human continuation check |  |
+| Tests | Missing, weak, or stale | Test cases, fixtures, regression tests | Test run, fail-before-fix check | |
+| Docs | Missing, weak, or stale | README updates, examples, setup notes | Command check, reviewer check | |
+| Schemas | Missing, weak, or stale | JSON Schema, Zod, OpenAPI drafts | Schema validation, contract tests | |
+| Diagrams | Missing, weak, or stale | Mermaid drafts, data-flow maps | Architecture review, code comparison | |
+| Migrations | Missing, weak, or stale | Dry-run and rollback plan | Staging run, backup check | |
+| Threat model | Missing, weak, or stale | Asset and boundary map | Security review | |
+| Handoff | Missing, weak, or stale | Changed-file summary, risks, next step | Human continuation check | |
 
 For each row, ask:
 

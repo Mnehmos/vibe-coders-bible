@@ -28,7 +28,7 @@ The model's confidence is not a reliable signal for autonomy.
 
 A model that says "I am certain this migration is safe" is not more trustworthy than one that says "I believe this migration is likely safe." The expressed confidence is a function of the training distribution and the phrasing of the question, not a measurement of actual correctness.
 
-Autonomy calibrated to model confidence will fail precisely when confidence is highest and correctness is lowest — which is exactly the plausibility trap described in Chapter 31.
+Autonomy calibrated to model confidence will fail precisely when confidence is highest and correctness is lowest - which is exactly the plausibility trap described in Chapter 31.
 
 Autonomy must be calibrated to the strength of the verification controls, not to the model's expressed certainty.
 
@@ -42,11 +42,11 @@ Autonomy should be granted incrementally, with each level requiring stronger con
 
 | Level | Agent may | Required controls |
 | --- | --- | --- |
-| 0 — Suggest | Propose only, no writes | Human review of all output before any action |
-| 1 — Edit branch | Write to a feature branch | Tests pass, diff reviewed by human |
-| 2 — Open PR | Create a pull request | CI passes, PR template complete, reviewable artifact exists |
-| 3 — Auto-merge | Merge specific categories of low-risk change | Strong test coverage, defined ownership rules, scope limit |
-| 4 — Deploy | Push to production | Release gates, rollback plan named, observability in place |
+| 0 - Suggest | Propose only, no writes | Human review of all output before any action |
+| 1 - Edit branch | Write to a feature branch | Tests pass, diff reviewed by human |
+| 2 - Open PR | Create a pull request | CI passes, PR template complete, reviewable artifact exists |
+| 3 - Auto-merge | Merge specific categories of low-risk change | Strong test coverage, defined ownership rules, scope limit |
+| 4 - Deploy | Push to production | Release gates, rollback plan named, observability in place |
 
 Levels are not permanent. A team may grant Level 2 for documentation changes and Level 0 for schema migrations. The level is per domain and per blast radius, not global.
 
@@ -100,7 +100,7 @@ Autonomous actions without accountability create systems that fail in ways no on
 
 The default is Level 0. Autonomy is earned upward. It is not given and then selectively restricted.
 
-## Practical Artifact — Autonomy Grant Assessment
+## Practical Artifact - Autonomy Grant Assessment
 
 Use this before allowing an agent to take automated action at any level above Level 0.
 
@@ -109,7 +109,7 @@ Use this before allowing an agent to take automated action at any level above Le
 | What is the blast radius if this action is wrong? | All levels |
 | What tests would fail if the output is incorrect? | Level 1+ |
 | Have those tests passed on the current output? | Level 1+ |
-| Is there a human reviewer for the resulting artifact? | Level 1–2 |
+| Is there a human reviewer for the resulting artifact? | Level 1 - 2 |
 | Is the scope of automated action explicitly bounded? | Level 3+ |
 | Is there a tested rollback path? | Level 3+ |
 | Is every automated action logged with enough detail to reconstruct what happened? | Level 3+ |

@@ -4,7 +4,7 @@ Part: VI - Case Studies From The Mnehmos Ecosystem
 
 ## Thesis
 
-Generated media has the same problem as generated code: a pixel sequence produced by a prompt is not editable, reproducible, or auditable. The fix is the same — make state the primary artifact, and treat the rendered output as a compiled downstream product.
+Generated media has the same problem as generated code: a pixel sequence produced by a prompt is not editable, reproducible, or auditable. The fix is the same - make state the primary artifact, and treat the rendered output as a compiled downstream product.
 
 ## Key Line
 
@@ -18,11 +18,11 @@ The video looks right. Maybe it looks excellent. The problem arrives the moment 
 
 Change the lighting in the third scene. Move the camera ten degrees left. Replace the background asset. Adjust the pacing of the fourth beat. Remove the object that appears in frame two.
 
-With prompt-only media, none of these edits have a clean path. The prompt does not remember what it produced. Regenerating it may produce something completely different. There is no partial edit — only full regeneration. Full regeneration destroys intent that was not captured anywhere.
+With prompt-only media, none of these edits have a clean path. The prompt does not remember what it produced. Regenerating it may produce something completely different. There is no partial edit - only full regeneration. Full regeneration destroys intent that was not captured anywhere.
 
 This is not a rendering problem. It is a state problem.
 
-The video is not the product. The prompt that generated it is not the product. A structured description of what the video should contain — the scene, the assets, the timeline, the render settings — is the product. The video is what happens when you compile that description.
+The video is not the product. The prompt that generated it is not the product. A structured description of what the video should contain - the scene, the assets, the timeline, the render settings - is the product. The video is what happens when you compile that description.
 
 Semantic Video Studio is built on that premise.
 
@@ -32,7 +32,7 @@ The studio represents every scene as a state pack with four distinct planes.
 
 **Scene graph** (`scene_graph.json`): Object IDs, transforms, cameras, lights, and environment parameters. Every element in the 3D world has a stable identifier and a documented spatial position. The camera knows where it is. The lights know their intensities. The objects know their transforms.
 
-**Asset manifest** (`asset_manifest.json`): Reusable typed assets with interfaces, capabilities, and anchors. An asset is not just a file path. It has a defined interface — the anchors where other assets connect to it, the capabilities it exposes, the type contract it satisfies. This makes assets composable and replaceable without breaking the scene.
+**Asset manifest** (`asset_manifest.json`): Reusable typed assets with interfaces, capabilities, and anchors. An asset is not just a file path. It has a defined interface - the anchors where other assets connect to it, the capabilities it exposes, the type contract it satisfies. This makes assets composable and replaceable without breaking the scene.
 
 **Timeline** (`timeline.json`): Typed beats and actions over object IDs, camera IDs, and light IDs. The timeline does not reference pixel positions. It references stable identifiers from the scene graph. A camera move is described as a transition between named camera states, not as raw keyframe data.
 
@@ -135,7 +135,7 @@ Pixels are output.
 
 State is the product.
 
-## Practical Artifact — Generated Media State Audit
+## Practical Artifact - Generated Media State Audit
 
 | Question | What it protects |
 | --- | --- |
