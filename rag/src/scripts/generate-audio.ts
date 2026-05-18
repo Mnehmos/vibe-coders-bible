@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(__dirname, '..', '..', '..', '..');
+const ROOT = join(__dirname, '..', '..', '..');
 const CHAPTERS_DIR = join(ROOT, 'manuscript', 'chapters');
 const AUDIO_DIR = join(ROOT, 'site', 'public', 'audio');
 
