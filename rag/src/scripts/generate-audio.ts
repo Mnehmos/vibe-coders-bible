@@ -19,6 +19,7 @@ const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 function stripMarkdown(md: string): string {
   return md
+    .replace(/\[stage\.[^\]]*\]/g, '')   // strip [stage.*] commands before TTS
     .replace(/^#{1,6}\s+/gm, '')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/\*([^*]+)\*/g, '$1')
