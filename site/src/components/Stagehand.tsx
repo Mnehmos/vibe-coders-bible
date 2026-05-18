@@ -10,8 +10,14 @@ interface AudioWord {
 
 interface Para {
   text: string;
-  wordStart: number;  // first word index in this paragraph
-  wordEnd: number;    // last word index (exclusive)
+  wordStart: number;
+  wordEnd: number;
+}
+
+interface StageCommand {
+  wordIdx: number;  // fire when current word index reaches this
+  type: string;
+  args: Record<string, string>;
 }
 
 interface StagehandProps {
@@ -22,17 +28,27 @@ interface StagehandProps {
 
 type PlayState = 'idle' | 'playing' | 'paused';
 
-// ─── Markdown stripping ──────────────────────────────────────────────────────
+// ─── Parsers ─────────────────────────────────────────────────────────────────
 
-function stripMarkdown(md: string): string {
-  return md
+function parseCommandArgs(raw: string): Record<string, string> {
+  const args: Record<string, string> = {};
+  // Handles key="value" and key=value
+  const re = /(\w+)=(?:"([^"]*?)"|(\S+))/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(raw)) !== null) args[m[1]] = m[2] ?? m[3];
+  return args;
+}
+
+// Strip markdown and extract [stage.*] commands with trigger word indices
+function extractStage(md: string): { plain: string; commands: StageCommand[] } {
+  // Standard markdown cleanup (leave [stage.*] in place for now)
+  let text = md
     .replace(/^#{1,6}\s+/gm, '')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/\*([^*]+)\*/g, '$1')
     .replace(/`{3}[\s\S]*?`{3}/gm, '')
     .replace(/`([^`]+)`/g, '$1')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/^\[stage\.[^\]]+\]/gm, '')   // strip Stagehand commands
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')  // markdown links (not stage commands — they have no url)
     .replace(/^[-*+]\s+/gm, '')
     .replace(/^\|.+/gm, '')
     .replace(/^---+$/gm, '')
@@ -40,6 +56,21 @@ function stripMarkdown(md: string): string {
     .replace(/^## Export[\s\S]*$/m, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+
+  const commands: StageCommand[] = [];
+  const cmdRe = /\[stage\.([a-zA-Z]+)([^\]]*)\]/g;
+  let lastIdx = 0, wc = 0, plain = '';
+  let m: RegExpExecArray | null;
+
+  while ((m = cmdRe.exec(text)) !== null) {
+    const seg = text.slice(lastIdx, m.index);
+    plain += seg;
+    wc += seg.split(/\s+/).filter(Boolean).length;
+    commands.push({ wordIdx: wc, type: m[1], args: parseCommandArgs(m[2]) });
+    lastIdx = m.index + m[0].length;
+  }
+  plain += text.slice(lastIdx);
+  return { plain: plain.replace(/\n{3,}/g, '\n\n').trim(), commands };
 }
 
 // Build paragraph list with word index ranges
@@ -55,7 +86,6 @@ function buildParas(plain: string): Para[] {
   return paras;
 }
 
-// Find which paragraph contains a word index
 function findPara(paras: Para[], wordIdx: number): number {
   for (let i = paras.length - 1; i >= 0; i--) {
     if (wordIdx >= paras[i].wordStart) return i;
@@ -115,6 +145,13 @@ function injectCSS() {
     article.sg-on {
       transition: none;
     }
+    article .sg-highlight {
+      background: rgba(245,158,11,0.18);
+      outline: 1px solid rgba(245,158,11,0.45);
+      outline-offset: 3px;
+      border-radius: 3px;
+      transition: background 0.3s ease;
+    }
   `;
   document.head.appendChild(style);
 }
@@ -127,6 +164,7 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
   const [currentWordIdx, setCurrentWordIdx] = useState(-1);
   const [currentParaIdx, setCurrentParaIdx] = useState(-1);
   const [progress, setProgress] = useState(0);
+  const [diagramSrc, setDiagramSrc] = useState('');
 
   // Audio file mode
   const [audioWords, setAudioWords] = useState<AudioWord[]>([]);
@@ -138,17 +176,23 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
   const wsTextRef = useRef('');
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // Paragraph map
+  // Paragraph map + DOM elements
   const parasRef = useRef<Para[]>([]);
-  // DOM elements corresponding to paragraphs (positional match)
   const domParasRef = useRef<Element[]>([]);
   const articleRef = useRef<Element | null>(null);
   const prevParaIdxRef = useRef(-1);
 
+  // Command state
+  const commandsRef = useRef<StageCommand[]>([]);
+  const firedCommandsRef = useRef<Set<number>>(new Set());
+  const manualFocusRef = useRef(false);       // true after [stage.focus], suppresses auto-tracking
+  const highlightedElsRef = useRef<Set<Element>>(new Set());
+
   // ── Init ────────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    const plain = stripMarkdown(body);
+    const { plain, commands } = extractStage(body);
+    commandsRef.current = commands;
     wsTextRef.current = plain;
 
     // Build WS tokens
@@ -160,10 +204,8 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
     }
     wsTokensRef.current = tokens;
 
-    // Build paragraph map
     parasRef.current = buildParas(plain);
 
-    // Load audio timestamps
     if (wordsSrc) {
       fetch(wordsSrc)
         .then(r => (r.ok ? r.json() : null))
@@ -173,7 +215,6 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
         .catch(() => {});
     }
 
-    // Grab article DOM element and its prose children
     const article = document.querySelector('article');
     if (article) {
       articleRef.current = article;
@@ -185,7 +226,6 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
     return () => {
       window.speechSynthesis?.cancel();
       if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ''; }
-      // Clean up presenter CSS classes
       if (article) article.classList.remove('sg-on');
     };
   }, [body, wordsSrc]);
@@ -206,14 +246,12 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
     }
   }, [presentMode]);
 
-  // Toggle present mode on/off during playback
   useEffect(() => {
     const article = articleRef.current;
     if (!article) return;
     injectCSS();
     if (presentMode && playState !== 'idle') {
       article.classList.add('sg-on');
-      // Re-apply spotlight to current para
       const domParas = domParasRef.current;
       domParas.forEach(el => el.classList.remove('sg-live'));
       if (currentParaIdx >= 0 && domParas[currentParaIdx]) {
@@ -226,6 +264,56 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
     }
   }, [presentMode, playState, currentParaIdx]);
 
+  // ── Command execution ────────────────────────────────────────────────────
+
+  const executeCommand = useCallback((cmd: StageCommand) => {
+    switch (cmd.type) {
+      case 'focus': {
+        // [stage.focus para=3] — spotlight paragraph N (1-indexed), override auto-tracking
+        const idx = parseInt(cmd.args.para ?? '1', 10) - 1;
+        manualFocusRef.current = true;
+        spotlightPara(idx);
+        break;
+      }
+      case 'auto': {
+        // [stage.auto] — resume auto-tracking after a manual focus
+        manualFocusRef.current = false;
+        break;
+      }
+      case 'highlight': {
+        // [stage.highlight text="some phrase"] — amber-highlight the paragraph containing this text
+        const needle = cmd.args.text ?? '';
+        if (!needle) break;
+        for (const el of domParasRef.current) {
+          if (el.textContent?.includes(needle)) {
+            el.classList.add('sg-highlight');
+            highlightedElsRef.current.add(el);
+            break;
+          }
+        }
+        break;
+      }
+      case 'clear': {
+        // [stage.clear] — remove all manual highlights and resume auto-tracking
+        manualFocusRef.current = false;
+        for (const el of highlightedElsRef.current) {
+          el.classList.remove('sg-highlight');
+        }
+        highlightedElsRef.current.clear();
+        break;
+      }
+      case 'diagram': {
+        // [stage.diagram src="/diagrams/foo.png"] — show overlay image
+        setDiagramSrc(cmd.args.src ?? '');
+        break;
+      }
+      case 'closediagram': {
+        setDiagramSrc('');
+        break;
+      }
+    }
+  }, [spotlightPara]);
+
   // ── Word / para tracking ────────────────────────────────────────────────
 
   const updatePosition = useCallback((wordIdx: number, prog: number) => {
@@ -233,8 +321,19 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
     setProgress(prog);
     const paraIdx = findPara(parasRef.current, wordIdx);
     setCurrentParaIdx(paraIdx);
-    spotlightPara(paraIdx);
-  }, [spotlightPara]);
+
+    if (!manualFocusRef.current) {
+      spotlightPara(paraIdx);
+    }
+
+    // Fire any commands whose trigger word has been reached
+    for (const cmd of commandsRef.current) {
+      if (cmd.wordIdx <= wordIdx && !firedCommandsRef.current.has(cmd.wordIdx)) {
+        firedCommandsRef.current.add(cmd.wordIdx);
+        executeCommand(cmd);
+      }
+    }
+  }, [spotlightPara, executeCommand]);
 
   // ── Audio element ───────────────────────────────────────────────────────
 
@@ -323,6 +422,12 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
     setProgress(0);
     prevParaIdxRef.current = -1;
     setPresentMode(false);
+    setDiagramSrc('');
+    // Reset command firing state
+    firedCommandsRef.current.clear();
+    manualFocusRef.current = false;
+    for (const el of highlightedElsRef.current) el.classList.remove('sg-highlight');
+    highlightedElsRef.current.clear();
   };
 
   // ── Render ──────────────────────────────────────────────────────────────
@@ -337,6 +442,26 @@ export default function Stagehand({ body, audioSrc, wordsSrc }: StagehandProps) 
 
   return (
     <>
+      {/* Diagram overlay */}
+      {diagramSrc && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm cursor-pointer"
+          onClick={() => setDiagramSrc('')}
+        >
+          <img
+            src={diagramSrc}
+            alt="Stage diagram"
+            className="max-w-[82vw] max-h-[82vh] rounded-lg shadow-2xl border border-[#2a2a3a]"
+          />
+          <button
+            className="absolute top-4 right-4 text-[#aaa] text-sm font-mono hover:text-white"
+            onClick={() => setDiagramSrc('')}
+          >
+            ✕ close
+          </button>
+        </div>
+      )}
+
       {/* Idle controls */}
       {playState === 'idle' && (
         <div className="flex items-center gap-2 flex-wrap">
