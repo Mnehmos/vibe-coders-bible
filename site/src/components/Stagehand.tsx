@@ -132,16 +132,16 @@ function injectCSS() {
   style.id = CSS_ID;
   style.textContent = `
     article.sg-on > *:not(.sg-live) {
-      opacity: 0.18;
-      transition: opacity 0.35s ease;
+      opacity: 0.35;
+      transition: opacity 0.4s ease;
     }
     article.sg-on .sg-live {
       opacity: 1;
-      transition: opacity 0.35s ease;
-      outline: 2px solid rgba(245,158,11,0.25);
-      outline-offset: 8px;
+      transition: opacity 0.4s ease;
+      outline: 2px solid rgba(245,158,11,0.35);
+      outline-offset: 10px;
       border-radius: 4px;
-      background: rgba(245,158,11,0.04);
+      background: rgba(245,158,11,0.06);
     }
     article.sg-on {
       transition: none;
