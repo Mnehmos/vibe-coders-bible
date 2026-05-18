@@ -137,11 +137,15 @@ function injectCSS() {
     }
     article.sg-on .sg-live {
       opacity: 1;
-      transition: opacity 0.4s ease;
-      outline: 2px solid rgba(245,158,11,0.35);
-      outline-offset: 10px;
-      border-radius: 4px;
-      background: rgba(245,158,11,0.06);
+      transition: opacity 0.4s ease, box-shadow 0.4s ease;
+      outline: 2px solid rgba(245,158,11,0.5);
+      outline-offset: 12px;
+      border-radius: 6px;
+      background: rgba(245,158,11,0.07);
+      box-shadow:
+        0 0 0 12px rgba(245,158,11,0.04),
+        0 0 40px rgba(245,158,11,0.18),
+        0 0 80px rgba(245,158,11,0.08);
     }
     article.sg-on {
       transition: none;
