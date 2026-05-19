@@ -15,13 +15,20 @@ The reusable templates live in `templates/`.
 
 ## Supporting templates
 
+- `admin-done-report.md`
+- `admin-pass.md`
 - `ai-project-brief.md`
 - `agent-handoff.md`
 - `bug-report.md`
+- `claim-evidence-audit.md`
 - `evaluation-metrics.md`
 - `feature-agent-prompt.md`
 - `feature-brief.md`
 - `hierarchy-of-controls-checklist.md`
+- `history-reader.md`
+- `human-reviewer-checklist.md`
+- `issue-triage.md`
+- `pr-review-admin.md`
 - `pr-checklist.md`
 - `release-checklist.md`
 - `safety-checklist.md`
